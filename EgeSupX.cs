@@ -1,29 +1,19 @@
-﻿using System;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using System.Windows.Media;
+using System.Security.Principal;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Threading;
 
-// v Setup v
-#region ! Setup !
-/*
+// Made by EgeSuperMine. Copyright(c) 2024. All Rights reserved.
 
-PUT THIS CODE BELOW TO YOUR MAIN WINDOW CLASS OR EGESUPX WONT WORK!
-
-* public static MainWindow RootWindow;
-
-That's all you gotta do to Setup EgeSupX. Thank you for using this!
- 
-*/
-#endregion
-// ^ Setup ^
-
-namespace EgeSupX_Workspace // Your Namespace goes here...
+namespace YourNamespace // Your Namespace goes here...
 {
     public class EgeSupX
     {
@@ -46,11 +36,8 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
 
                 return double.NaN;
             }
-
-            /// Random Decimal. Disabled due to an undetectable error. Please don't enable this.
-
-            /*
-            public static double RandomDecimal(double Min, double Max, byte digits, bool force = false)
+            
+            public static double RandomDouble(double Min, double Max, byte digits, bool force = false)
             {
                 if (force)
                 {
@@ -95,19 +82,18 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
 
                 return double.NaN;
             }
-            */
         }
 
         public class Media
         {
-            public static void Play(MediaPlayer player, string uri, TimeSpan time, double volume = 100, double playbackrate = 1, bool force = false)
+            public static void Play(MediaPlayer player, string uri, TimeSpan time, double volume = 100, double playspeed = 1, bool force = false)
             {
                 if (force)
                 {
                     player.Open(new Uri(uri));
-                    player.Position = time;
-                    player.Volume = volume / 200;
-                    player.SpeedRatio = playbackrate;
+                    if (time != TimeSpan.Zero) { player.Position = time; }
+                    if (volume != 100) { player.Volume = volume / 200; }
+                    if (playspeed != 1) { player.SpeedRatio = playspeed; }
                     player.Play();
                 }
                 else
@@ -115,18 +101,63 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
                     try
                     {
                         player.Open(new Uri(uri));
-                        player.Position = time;
-                        player.Volume = volume / 200;
-                        player.SpeedRatio = playbackrate;
+                        if (time != TimeSpan.Zero) { player.Position = time; }
+                        if (volume != 100) { player.Volume = volume / 200; }
+                        if (playspeed != 1) { player.SpeedRatio = playspeed; }
                         player.Play();
                     }
                     catch (Exception ex) { Console.WriteLine(ex.ToString()); }
                 }
             }
 
+            public static void Play(MediaPlayer player)
+            {
+                player.Play();
+            }
+
             public static void Stop(MediaPlayer player)
             {
                 player.Stop();
+            }
+
+            public static void Open(MediaPlayer player, string uri)
+            {
+                player.Open(new Uri(uri));
+            }
+
+            public static void Position(MediaPlayer player, TimeSpan time)
+            {
+                player.Position = time;
+            }
+
+            public static void Volume(MediaPlayer player, double volume)
+            {
+                player.Volume = volume / 200;
+            }
+
+            public static void PlaySpeed(MediaPlayer player, double speed)
+            {
+                player.SpeedRatio = speed;
+            }
+        }
+
+        public class Security
+        {
+            public static bool IsAdministrator(bool force = false)
+            {
+                if (force) {
+                    WindowsIdentity identity = WindowsIdentity.GetCurrent();
+                    WindowsPrincipal principal = new WindowsPrincipal(identity);
+                    return principal.IsInRole(WindowsBuiltInRole.Administrator);
+                } else {
+                    try {
+                        WindowsIdentity identity = WindowsIdentity.GetCurrent();
+                        WindowsPrincipal principal = new WindowsPrincipal(identity);
+                        return principal.IsInRole(WindowsBuiltInRole.Administrator);
+                    } catch (Exception ex) { Console.WriteLine(ex); }
+                }
+
+                return false;
             }
         }
 
@@ -281,10 +312,72 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
 
         public class Window
         {
-            public static void WindowStyle(WindowStyle style) { Application.Current.Dispatcher.Invoke(() => { MainWindow.RootWindow.WindowStyle = style; }); }
-            public static void WindowState(WindowState state) { Application.Current.Dispatcher.Invoke(() => { MainWindow.RootWindow.WindowState = state; }); }
-            public static void ResizeMode(ResizeMode mode) { Application.Current.Dispatcher.Invoke(() => { MainWindow.RootWindow.ResizeMode = mode; }); }
-            public static void WindowTransparent(bool _) { Application.Current.Dispatcher.Invoke(() => { MainWindow.RootWindow.AllowsTransparency = _; }); }
+            public static WindowStyle GetStyle(MainWindow window, bool force = false)
+            {
+                if (force) { Application.Current.Dispatcher.Invoke(() => { return window.WindowStyle; }); } else {
+                    try { Application.Current.Dispatcher.Invoke(() => { return window.WindowStyle; }); } catch (Exception ex) { Console.WriteLine(ex); }
+                }
+
+                return WindowStyle.None;
+            }
+
+            public static void SetStyle(MainWindow window, WindowStyle style, bool force = false)
+            {
+                if (force) { Application.Current.Dispatcher.Invoke(() => { window.WindowStyle = style; }); } else {
+                    try { Application.Current.Dispatcher.Invoke(() => { window.WindowStyle = style; }); } catch (Exception ex) { Console.WriteLine(ex); }
+                }
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            public static WindowState GetState(MainWindow window, bool force = false)
+            {
+                if (force) { Application.Current.Dispatcher.Invoke(() => { return window.WindowState; }); } else {
+                    try { Application.Current.Dispatcher.Invoke(() => { return window.WindowState; }); } catch (Exception ex) { Console.WriteLine(ex); }
+                }
+
+                return WindowState.Normal;
+            }
+
+            public static void SetState(MainWindow window, WindowState state, bool force = false)
+            {
+                if (force) { Application.Current.Dispatcher.Invoke(() => { window.WindowState = state; }); } else {
+                    try { Application.Current.Dispatcher.Invoke(() => { window.WindowState = state; }); } catch (Exception ex) { Console.WriteLine(ex); }
+                }
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            public static ResizeMode GetResizeMode(MainWindow window, bool force = false)
+            {
+                if (force) { Application.Current.Dispatcher.Invoke(() => { return window.ResizeMode; }); } else {
+                    try { Application.Current.Dispatcher.Invoke(() => { return window.ResizeMode; }); } catch (Exception ex) { Console.WriteLine(ex); }
+                }
+
+                return ResizeMode.NoResize;
+            }
+
+            public static void SetResizeMode(MainWindow window, ResizeMode mode, bool force = false)
+            {
+                if (force) { Application.Current.Dispatcher.Invoke(() => { window.ResizeMode = mode; }); } else {
+                    try { Application.Current.Dispatcher.Invoke(() => { window.ResizeMode = mode; }); } catch (Exception ex) { Console.WriteLine(ex); }
+                }
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            /*  // Sadly, Transparency() is Disabled from now on because 'AllowsTransparency' can only be changed through XAML, not C#.
+                // You have the option to change it to True or False but it doesn't let you change it when the Window is Loaded.
+                // So, R.I.P. to Transparency(). 
+
+            public static void Transparency(MainWindow window, bool _, bool force = false)
+            {
+                if (force) { Application.Current.Dispatcher.Invoke(() => { window.AllowsTransparency = _; }); } else {
+                    try { Application.Current.Dispatcher.Invoke(() => { window.AllowsTransparency = _; }); } catch (Exception ex) { Console.WriteLine(ex); }
+                }
+            }
+
+            */
         }
     }
 }
