@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using System.Windows.Media;
+using System.Security;
 using System.Security.Principal;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,15 +11,53 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Threading;
+using System.IO;
 
 // Made by EgeSuperMine. Copyright(c) 2024. All Rights reserved.
+// Version: 1.0.2
+
+// Thank you for using EgeSupX!
 
 namespace YourNamespace // Your Namespace goes here...
 {
     public class EgeSupX
     {
+        public EgeSupX() { Runtime.Start(); }
+
+        /// <summary>
+        /// Executes a .ESX File.
+        /// </summary>
+        /// <exception cref="NullReferenceException"></exception>
+        /// <exception cref="ArgumentException"></exception>
+        /// <exception cref="System.IO.IOException"></exception>
+        /// <exception cref="System.IO.FileNotFoundException"></exception>
+        /// <exception cref="System.IO.FileFormatException"></exception>
+        /// <exception cref="System.IO.InvalidDataException"></exception>
+        public static void Execute(string path, bool force = true)
+        {
+            MessageBox.Show("This Feature is unavailable for now!", "EgeSupX.Execute()", MessageBoxButton.OK);
+            if (force) {
+                StreamReader reader = new StreamReader(path);
+                reader.ReadLine();
+                reader.Dispose();
+                reader.Close();
+            } else {
+                try { } catch (Exception) { MessageBox.Show("How'd you do this?.. Nevermind...", "EgeSuperMine", MessageBoxButton.OK); }
+            }
+        }
+
         public class Math
         {
+            /// <summary>
+            /// Generates a random number within the specified range.
+            /// </summary>
+            /// <returns>
+            /// A random number within the specified range.
+            /// </returns>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static double Random(double Min, double Max, bool force = false)
             {
                 if (force) {
@@ -36,7 +75,17 @@ namespace YourNamespace // Your Namespace goes here...
 
                 return double.NaN;
             }
-            
+
+            /// <summary>
+            /// Generates a random decimal number within the specified range and precision.
+            /// </summary>
+            /// <returns>
+            /// A random decimal number within the specified range, with the specified number of decimal digits.
+            /// </returns>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static double RandomDouble(double Min, double Max, byte digits, bool force = false)
             {
                 if (force)
@@ -86,6 +135,14 @@ namespace YourNamespace // Your Namespace goes here...
 
         public class Media
         {
+            /// <summary>
+            /// <para><i>No Description provided.</i></para>
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static void Play(MediaPlayer player, string uri, TimeSpan time, double volume = 100, double playspeed = 1, bool force = false)
             {
                 if (force)
@@ -110,31 +167,79 @@ namespace YourNamespace // Your Namespace goes here...
                 }
             }
 
+            /// <summary>
+            /// Plays Media through the MediaPlayer.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static void Play(MediaPlayer player)
             {
                 player.Play();
             }
 
+            /// <summary>
+            /// Stops the MediaPlayer.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static void Stop(MediaPlayer player)
             {
                 player.Stop();
             }
 
+            /// <summary>
+            /// Sets the Path for the MediaPlayer.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static void Open(MediaPlayer player, string uri)
             {
                 player.Open(new Uri(uri));
             }
 
+            /// <summary>
+            /// Sets the Position of the MediaPlayer.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static void Position(MediaPlayer player, TimeSpan time)
             {
                 player.Position = time;
             }
 
+            /// <summary>
+            /// Sets the Volume of the MediaPlayer.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static void Volume(MediaPlayer player, double volume)
             {
                 player.Volume = volume / 200;
             }
 
+            /// <summary>
+            /// Sets the Speed of the MediaPlayer.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static void PlaySpeed(MediaPlayer player, double speed)
             {
                 player.SpeedRatio = speed;
@@ -143,6 +248,16 @@ namespace YourNamespace // Your Namespace goes here...
 
         public class Security
         {
+            /// <summary>
+            /// Gets if the Application is running as Administrator.
+            /// </summary>
+            /// <returns>
+            /// True if the Application is running as Administrator, otherwise False.
+            /// </returns>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="SecurityException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static bool IsAdministrator(bool force = false)
             {
                 if (force) {
@@ -161,8 +276,53 @@ namespace YourNamespace // Your Namespace goes here...
             }
         }
 
+        public class Runtime
+        {
+            public static double runtime = 0;
+            public static double runtime_s = 0;
+            public static double runtime_m = -1;
+            public static double runtime_h = -1;
+            public static double runtime_d = -1;
+            static readonly Thread _runtime = new Thread(t => { runtime += 0.1; Thread.Sleep(100); });
+            static readonly Thread _runtimes = new Thread(t => { runtime_s += 1; Thread.Sleep(1000); });
+            static readonly Thread _runtimem = new Thread(t => { runtime_m += 1; Thread.Sleep(60000); });
+            static readonly Thread _runtimeh = new Thread(t => { runtime_h += 1; Thread.Sleep(3600000); });
+            static readonly Thread _runtimed = new Thread(t => { runtime_d += 1; Thread.Sleep(86400000); });
+
+            /// <summary>
+            /// Starts tracking the runtime of the application.
+            /// </summary>
+            public static void Start() { _runtime.Start(); _runtimes.Start(); _runtimem.Start(); _runtimeh.Start(); _runtimed.Start(); }
+
+            /// <summary>
+            /// Gets the runtime of the application in the specified time unit.
+            /// </summary>
+            /// <returns>
+            /// The runtime of the application. If a time unit is specified, returns the runtime in that unit; otherwise, returns the total runtime in seconds.
+            /// </returns>
+            public static double GetRuntime(string _as = null)
+            {
+                if (_as == null) { return runtime; }
+                else if (_as.ToLower() == "seconds" || _as.ToLower() == "s") { return runtime_s; }
+                else if (_as.ToLower() == "minutes" || _as.ToLower() == "m") { return runtime_m; }
+                else if (_as.ToLower() == "hours" || _as.ToLower() == "h") { return runtime_h; }
+                else if (_as.ToLower() == "days" || _as.ToLower() == "d") { return runtime_d; }
+                else { MessageBox.Show("Invalid [as] Type.", "EgeSupX.Runtime.GetRuntime()", MessageBoxButton.OK); }
+
+                return runtime;
+            }
+        }
+
         public class UI
         {
+            /// <summary>
+            /// Sets the Position of the UI Element.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static void Move(UIElement element, double x, double y, bool force = false)
             {
                 if (force)
@@ -185,6 +345,16 @@ namespace YourNamespace // Your Namespace goes here...
                 }
             }
 
+            /// <summary>
+            /// Gets the X (Left) Position of the UI Element.
+            /// </summary>
+            /// <returns>
+            /// The X (Left) Position of the Window.
+            /// </returns>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static double GetX(UIElement element, bool force = false)
             {
                 double i = -1;
@@ -209,6 +379,16 @@ namespace YourNamespace // Your Namespace goes here...
                 return i;
             }
 
+            /// <summary>
+            /// Gets the Y (Top) Position of the UI Element.
+            /// </summary>
+            /// <returns>
+            /// The Y (Top) Position of the Window.
+            /// </returns>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static double GetY(UIElement element, bool force = false)
             {
                 double i = -1;
@@ -233,6 +413,14 @@ namespace YourNamespace // Your Namespace goes here...
                 return i;
             }
 
+            /// <summary>
+            /// Sets the Size of the UI Element.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static void Resize(UIElement element, double width, double height, bool force = false)
             {
                 if (force)
@@ -261,6 +449,16 @@ namespace YourNamespace // Your Namespace goes here...
                 }
             }
 
+            /// <summary>
+            /// Gets the Width of the UI Element.
+            /// </summary>
+            /// <returns>
+            /// The Width of the UI Element.
+            /// </returns>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static double GetWidth(UIElement element, bool force = false)
             {
                 if (force)
@@ -285,6 +483,16 @@ namespace YourNamespace // Your Namespace goes here...
                 return double.NaN;
             }
 
+            /// <summary>
+            /// Gets the Height of the UI Element.
+            /// </summary>
+            /// <returns>
+            /// The Height of the UI Element.
+            /// </returns>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static double GetHeight(UIElement element, bool force = false)
             {
                 if (force)
@@ -312,6 +520,16 @@ namespace YourNamespace // Your Namespace goes here...
 
         public class Window
         {
+            /// <summary>
+            /// Gets the Current Style of the Window.
+            /// </summary>
+            /// <returns>
+            /// The Current Style of the Window.
+            /// </returns>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static WindowStyle GetStyle(MainWindow window, bool force = false)
             {
                 if (force) { Application.Current.Dispatcher.Invoke(() => { return window.WindowStyle; }); } else {
@@ -321,6 +539,14 @@ namespace YourNamespace // Your Namespace goes here...
                 return WindowStyle.None;
             }
 
+            /// <summary>
+            /// Sets the Current Style of the Window.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static void SetStyle(MainWindow window, WindowStyle style, bool force = false)
             {
                 if (force) { Application.Current.Dispatcher.Invoke(() => { window.WindowStyle = style; }); } else {
@@ -330,6 +556,16 @@ namespace YourNamespace // Your Namespace goes here...
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+            /// <summary>
+            /// Gets the Current State of the Window.
+            /// </summary>
+            /// <returns>
+            /// The Current State of the Window.
+            /// </returns>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static WindowState GetState(MainWindow window, bool force = false)
             {
                 if (force) { Application.Current.Dispatcher.Invoke(() => { return window.WindowState; }); } else {
@@ -339,6 +575,14 @@ namespace YourNamespace // Your Namespace goes here...
                 return WindowState.Normal;
             }
 
+            /// <summary>
+            /// Sets the Current State of the Window.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static void SetState(MainWindow window, WindowState state, bool force = false)
             {
                 if (force) { Application.Current.Dispatcher.Invoke(() => { window.WindowState = state; }); } else {
@@ -348,6 +592,16 @@ namespace YourNamespace // Your Namespace goes here...
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+            /// <summary>
+            /// Gets the Resize Mode of the Window.
+            /// </summary>
+            /// <returns>
+            /// The Resize Mode of the Window.
+            /// </returns>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static ResizeMode GetResizeMode(MainWindow window, bool force = false)
             {
                 if (force) { Application.Current.Dispatcher.Invoke(() => { return window.ResizeMode; }); } else {
@@ -357,6 +611,14 @@ namespace YourNamespace // Your Namespace goes here...
                 return ResizeMode.NoResize;
             }
 
+            /// <summary>
+            /// Sets the Resize Mode of the Window.
+            /// </summary>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="ArgumentException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
             public static void SetResizeMode(MainWindow window, ResizeMode mode, bool force = false)
             {
                 if (force) { Application.Current.Dispatcher.Invoke(() => { window.ResizeMode = mode; }); } else {
