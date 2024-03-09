@@ -12,9 +12,10 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Threading;
 using System.IO;
+using System.Net.Http;
 
 // Made by EgeSuperMine. Copyright(c) 2024. All Rights reserved.
-// Version: 1.0.2
+// Version: 1.0.3
 
 // Thank you for using EgeSupX!
 
@@ -48,6 +49,9 @@ namespace YourNamespace // Your Namespace goes here...
 
         public class Math
         {
+
+            #region Math.Random() - Generates a random number within the specified range.
+
             /// <summary>
             /// Generates a random number within the specified range.
             /// </summary>
@@ -56,6 +60,7 @@ namespace YourNamespace // Your Namespace goes here...
             /// </returns>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="ArgumentOutOfRangeException"></exception>
             /// <exception cref="UnauthorizedAccessException"></exception>
             /// <exception cref="NotSupportedException"></exception>
             public static double Random(double Min, double Max, bool force = false)
@@ -76,6 +81,8 @@ namespace YourNamespace // Your Namespace goes here...
                 return double.NaN;
             }
 
+            #endregion
+            #region Math.RandomDouble() - Generates a random decimal number within the specified range and precision.
             /// <summary>
             /// Generates a random decimal number within the specified range and precision.
             /// </summary>
@@ -84,6 +91,7 @@ namespace YourNamespace // Your Namespace goes here...
             /// </returns>
             /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="ArgumentOutOfRangeException"></exception>
             /// <exception cref="UnauthorizedAccessException"></exception>
             /// <exception cref="NotSupportedException"></exception>
             public static double RandomDouble(double Min, double Max, byte digits, bool force = false)
@@ -131,10 +139,57 @@ namespace YourNamespace // Your Namespace goes here...
 
                 return double.NaN;
             }
+
+            #endregion
+            #region Math.RandomString() - Generates a random string within the specified length.
+
+            /// <summary>
+            /// Generates a random string within the specified length.
+            /// </summary>
+            /// <returns>A random string within the specified length.</returns>
+            /// <exception cref="InvalidOperationException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            /// <exception cref="ArgumentOutOfRangeException"></exception>
+            /// <exception cref="UnauthorizedAccessException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
+            public static string RandomString(int length, bool force = false)
+            {
+                if (force) {
+                    if (length <= 0) { MessageBox.Show($"Parameter \"length\" out of range.\n\nlength ({length}) < 1", "EgeSupX.Math.RandomString()", MessageBoxButton.OK); return null; }
+                    Random random = new Random();
+                    string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                    StringBuilder stringBuilder = new StringBuilder(length);
+
+                    for (int i = 0; i < length; i++) {
+                        stringBuilder.Append(chars[random.Next(chars.Length)]);
+                    }
+
+                    return stringBuilder.ToString();
+                } else {
+                    try {
+                        Random random = new Random();
+                        string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                        StringBuilder stringBuilder = new StringBuilder(length);
+
+                        for (int i = 0; i < length; i++)
+                        {
+                            stringBuilder.Append(chars[random.Next(chars.Length)]);
+                        }
+
+                        return stringBuilder.ToString();
+                    } catch (Exception ex) { Console.WriteLine(ex); }
+                }
+
+                return null;
+            }
+
+            #endregion
         }
 
         public class Media
         {
+            #region Media.Play() - No Description provided.
+
             /// <summary>
             /// <para><i>No Description provided.</i></para>
             /// </summary>
@@ -151,7 +206,7 @@ namespace YourNamespace // Your Namespace goes here...
                     if (time != TimeSpan.Zero) { player.Position = time; }
                     if (volume != 100) { player.Volume = volume / 200; }
                     if (playspeed != 1) { player.SpeedRatio = playspeed; }
-                    player.Play();
+                    Application.Current.Dispatcher.Invoke(() => { player.Play(); });
                 }
                 else
                 {
@@ -161,11 +216,13 @@ namespace YourNamespace // Your Namespace goes here...
                         if (time != TimeSpan.Zero) { player.Position = time; }
                         if (volume != 100) { player.Volume = volume / 200; }
                         if (playspeed != 1) { player.SpeedRatio = playspeed; }
-                        player.Play();
-                    }
-                    catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+                        Application.Current.Dispatcher.Invoke(() => { player.Play(); });
+                    } catch (Exception ex) { Console.WriteLine(ex.ToString()); }
                 }
             }
+
+            #endregion
+            #region Media.Play() - Plays Media through the MediaPlayer.
 
             /// <summary>
             /// Plays Media through the MediaPlayer.
@@ -177,8 +234,11 @@ namespace YourNamespace // Your Namespace goes here...
             /// <exception cref="NotSupportedException"></exception>
             public static void Play(MediaPlayer player)
             {
-                player.Play();
+                Application.Current.Dispatcher.Invoke(() => { player.Play(); });
             }
+
+            #endregion
+            #region Media.Stop() - Stops the MediaPlayer.
 
             /// <summary>
             /// Stops the MediaPlayer.
@@ -193,6 +253,9 @@ namespace YourNamespace // Your Namespace goes here...
                 player.Stop();
             }
 
+            #endregion
+            #region Media.Open() - Sets the Path for the MediaPlayer.
+
             /// <summary>
             /// Sets the Path for the MediaPlayer.
             /// </summary>
@@ -205,6 +268,9 @@ namespace YourNamespace // Your Namespace goes here...
             {
                 player.Open(new Uri(uri));
             }
+
+            #endregion
+            #region Media.Position() - Sets the Position of the MediaPlayer.
 
             /// <summary>
             /// Sets the Position of the MediaPlayer.
@@ -219,6 +285,9 @@ namespace YourNamespace // Your Namespace goes here...
                 player.Position = time;
             }
 
+            #endregion
+            #region Media.Volume() - Sets the Volume of the MediaPlayer.
+
             /// <summary>
             /// Sets the Volume of the MediaPlayer.
             /// </summary>
@@ -227,10 +296,14 @@ namespace YourNamespace // Your Namespace goes here...
             /// <exception cref="NullReferenceException"></exception>
             /// <exception cref="UnauthorizedAccessException"></exception>
             /// <exception cref="NotSupportedException"></exception>
+
             public static void Volume(MediaPlayer player, double volume)
             {
                 player.Volume = volume / 200;
             }
+
+            #endregion
+            #region Media.PlaySpeed() - Sets the Speed of the MediaPlayer.
 
             /// <summary>
             /// Sets the Speed of the MediaPlayer.
@@ -244,10 +317,14 @@ namespace YourNamespace // Your Namespace goes here...
             {
                 player.SpeedRatio = speed;
             }
+
+            #endregion
         }
 
         public class Security
         {
+            #region Security.IsAdministrator() - Gets if the Application is running as Administrator.
+
             /// <summary>
             /// Gets if the Application is running as Administrator.
             /// </summary>
@@ -274,6 +351,8 @@ namespace YourNamespace // Your Namespace goes here...
 
                 return false;
             }
+
+            #endregion
         }
 
         public class Runtime
@@ -283,16 +362,21 @@ namespace YourNamespace // Your Namespace goes here...
             public static double runtime_m = -1;
             public static double runtime_h = -1;
             public static double runtime_d = -1;
-            static readonly Thread _runtime = new Thread(t => { runtime += 0.1; Thread.Sleep(100); });
-            static readonly Thread _runtimes = new Thread(t => { runtime_s += 1; Thread.Sleep(1000); });
-            static readonly Thread _runtimem = new Thread(t => { runtime_m += 1; Thread.Sleep(60000); });
-            static readonly Thread _runtimeh = new Thread(t => { runtime_h += 1; Thread.Sleep(3600000); });
-            static readonly Thread _runtimed = new Thread(t => { runtime_d += 1; Thread.Sleep(86400000); });
+            static readonly Thread _runtime = new Thread(t => { while (true) { runtime += 0.1; Thread.Sleep(100); } });
+            static readonly Thread _runtimes = new Thread(t => { while (true) { runtime_s += 1; Thread.Sleep(1000); } });
+            static readonly Thread _runtimem = new Thread(t => { while (true) { runtime_m += 1; Thread.Sleep(60000); } });
+            static readonly Thread _runtimeh = new Thread(t => { while (true) { runtime_h += 1; Thread.Sleep(3600000); } });
+            static readonly Thread _runtimed = new Thread(t => { while (true) { runtime_d += 1; Thread.Sleep(86400000); } });
+
+            #region Runtime.Start() - Starts tracking the runtime of the application.
 
             /// <summary>
             /// Starts tracking the runtime of the application.
             /// </summary>
             public static void Start() { _runtime.Start(); _runtimes.Start(); _runtimem.Start(); _runtimeh.Start(); _runtimed.Start(); }
+
+            #endregion
+            #region Runtime.GetRuntime() - Gets the runtime of the application in the specified time unit.
 
             /// <summary>
             /// Gets the runtime of the application in the specified time unit.
@@ -311,10 +395,14 @@ namespace YourNamespace // Your Namespace goes here...
 
                 return runtime;
             }
+
+            #endregion
         }
 
         public class UI
         {
+            #region UI.Move() - Sets the Position of the UI Element.
+
             /// <summary>
             /// Sets the Position of the UI Element.
             /// </summary>
@@ -344,6 +432,9 @@ namespace YourNamespace // Your Namespace goes here...
                     catch (Exception ex) { Console.WriteLine(ex.ToString()); }
                 }
             }
+
+            #endregion
+            #region UI.GetX() - Gets the X (Left) Position of the UI Element.
 
             /// <summary>
             /// Gets the X (Left) Position of the UI Element.
@@ -379,6 +470,9 @@ namespace YourNamespace // Your Namespace goes here...
                 return i;
             }
 
+            #endregion
+            #region UI.GetY() - Gets the Y (Top) Position of the UI Element.
+
             /// <summary>
             /// Gets the Y (Top) Position of the UI Element.
             /// </summary>
@@ -412,6 +506,10 @@ namespace YourNamespace // Your Namespace goes here...
 
                 return i;
             }
+
+            #endregion
+
+            #region UI.Resize() - Sets the Size of the UI Element.
 
             /// <summary>
             /// Sets the Size of the UI Element.
@@ -449,6 +547,9 @@ namespace YourNamespace // Your Namespace goes here...
                 }
             }
 
+            #endregion
+            #region UI.GetWidth() - Gets the Width of the UI Element.
+
             /// <summary>
             /// Gets the Width of the UI Element.
             /// </summary>
@@ -483,6 +584,9 @@ namespace YourNamespace // Your Namespace goes here...
                 return double.NaN;
             }
 
+            #endregion
+            #region UI.GetHeight() - Gets the Height of the UI Element.
+
             /// <summary>
             /// Gets the Height of the UI Element.
             /// </summary>
@@ -516,10 +620,14 @@ namespace YourNamespace // Your Namespace goes here...
 
                 return double.NaN;
             }
+
+            #endregion
         }
 
         public class Window
         {
+            #region Window.GetStyle() - Gets the Current Style of the Window.
+
             /// <summary>
             /// Gets the Current Style of the Window.
             /// </summary>
@@ -539,6 +647,9 @@ namespace YourNamespace // Your Namespace goes here...
                 return WindowStyle.None;
             }
 
+            #endregion
+            #region Window.SetStyle() - Sets the Current Style of the Window.
+
             /// <summary>
             /// Sets the Current Style of the Window.
             /// </summary>
@@ -554,7 +665,9 @@ namespace YourNamespace // Your Namespace goes here...
                 }
             }
 
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            #endregion
+
+            #region Window.GetState() - Gets the Current State of the Window.
 
             /// <summary>
             /// Gets the Current State of the Window.
@@ -575,6 +688,9 @@ namespace YourNamespace // Your Namespace goes here...
                 return WindowState.Normal;
             }
 
+            #endregion
+            #region Window.SetState() - Sets the Current State of the Window.
+
             /// <summary>
             /// Sets the Current State of the Window.
             /// </summary>
@@ -590,7 +706,9 @@ namespace YourNamespace // Your Namespace goes here...
                 }
             }
 
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            #endregion
+
+            #region Window.GetResizeMode() - Gets the Resize Mode of the Window.
 
             /// <summary>
             /// Gets the Resize Mode of the Window.
@@ -611,6 +729,9 @@ namespace YourNamespace // Your Namespace goes here...
                 return ResizeMode.NoResize;
             }
 
+            #endregion
+            #region Window.SetResizeMode() - Sets the Resize Mode of the Window.
+
             /// <summary>
             /// Sets the Resize Mode of the Window.
             /// </summary>
@@ -625,6 +746,8 @@ namespace YourNamespace // Your Namespace goes here...
                     try { Application.Current.Dispatcher.Invoke(() => { window.ResizeMode = mode; }); } catch (Exception ex) { Console.WriteLine(ex); }
                 }
             }
+
+            #endregion
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
