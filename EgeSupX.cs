@@ -13,9 +13,12 @@ using System.Windows.Input;
 using System.Threading;
 using System.IO;
 using System.Net.Http;
+using System.Diagnostics;
+using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 
 // Made by EgeSuperMine. Copyright(c) 2024. All Rights reserved.
-// Version: 1.0.3
+// Version: 1.0.4
 
 // Thank you for using EgeSupX!
 
@@ -47,9 +50,116 @@ namespace YourNamespace // Your Namespace goes here...
             }
         }
 
+        public class Error : System.Windows.Forms.Form
+        {
+            public static string _Text;
+            public static string _Title;
+            public static bool canIgnore;
+            public static ThreadStart OnIgnore;
+
+            public static void Create(MainWindow window, string text, string title, bool CanIgnore, ThreadStart onIgnore = null)
+            {
+                Application.Current.Dispatcher.Invoke(() => { window.WindowState = System.Windows.WindowState.Minimized; });
+                if (onIgnore == null) { onIgnore = new ThreadStart(() => { return; }); }
+                OnIgnore = onIgnore;
+
+                _Text = text;
+                if (title != null && title != "" && title != " ") { _Title = title; } else { _Title = "EgeSupX"; }
+                canIgnore = CanIgnore;
+                SetText(text);
+                if (title != null && title != "" && title != " ") { SetTitle(title); } else { SetTitle("EgeSupX"); }
+                System.Windows.Forms.Application.Run(new Error());
+            }
+
+            private static void SetText(string text) { _Text = text; }
+            private static void SetTitle(string title) { if (_Title != "EgeSupX") { _Title = "EgeSupX." + title; } else { _Title = "EgeSupX"; } }
+            public void BuildCreate() { errormsg.Text = _Text; if (!canIgnore) { bt_ignore.Visible = false; bt_ignore.Enabled = false; } }
+            public Error() { InitializeComponent(); if (!canIgnore) { bt_ignore.Visible = false; bt_ignore.Enabled = false; } }
+
+            private const int CP_DISABLE_CLOSE_BUTTON = 0x200;
+            protected override System.Windows.Forms.CreateParams CreateParams {
+                get {
+                    System.Windows.Forms.CreateParams cp = base.CreateParams;
+                    cp.ClassStyle |= CP_DISABLE_CLOSE_BUTTON;
+                    return cp;
+                }
+            }
+
+            #region InitializeComponent() - Do not touch this.
+            private void InitializeComponent()
+            {
+                this.errormsg = new System.Windows.Forms.RichTextBox();
+                this.bt_abort = new System.Windows.Forms.Button();
+                this.bt_ignore = new System.Windows.Forms.Button();
+                this.SuspendLayout();
+                // 
+                // errormsg
+                // 
+                this.errormsg.Location = new System.Drawing.Point(12, 12);
+                this.errormsg.Name = "errormsg";
+                this.errormsg.ReadOnly = true;
+                this.errormsg.Size = new System.Drawing.Size(585, 438);
+                this.errormsg.TabIndex = 0;
+                this.errormsg.Text = "Error.";
+                // 
+                // bt_abort
+                // 
+                this.bt_abort.Location = new System.Drawing.Point(522, 456);
+                this.bt_abort.Name = "bt_abort";
+                this.bt_abort.Size = new System.Drawing.Size(75, 23);
+                this.bt_abort.TabIndex = 1;
+                this.bt_abort.Text = "Abort";
+                this.bt_abort.UseVisualStyleBackColor = true;
+                this.bt_abort.Click += new System.EventHandler(this.Bt_abort_Click);
+                // 
+                // bt_ignore
+                // 
+                this.bt_ignore.Location = new System.Drawing.Point(441, 456);
+                this.bt_ignore.Name = "bt_ignore";
+                this.bt_ignore.Size = new System.Drawing.Size(75, 23);
+                this.bt_ignore.TabIndex = 2;
+                this.bt_ignore.Text = "Ignore";
+                this.bt_ignore.UseVisualStyleBackColor = true;
+                this.bt_ignore.Click += new System.EventHandler(this.Bt_ignore_Click);
+                // 
+                // ErrorFormB
+                // 
+                this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+                this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+                this.ClientSize = new System.Drawing.Size(609, 491);
+                this.Controls.Add(this.bt_ignore);
+                this.Controls.Add(this.bt_abort);
+                this.Controls.Add(this.errormsg);
+                this.DoubleBuffered = true;
+                this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+                this.MaximizeBox = false;
+                this.MinimizeBox = false;
+                this.Name = "ErrorForm";
+                this.ShowIcon = false;
+                this.ShowInTaskbar = false;
+                this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+                this.Text = "EgeSupX";
+                this.TopMost = true;
+                this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ErrorForm_Closing);
+                this.Load += new EventHandler(this.ErrorForm_Loaded);
+                this.ResumeLayout(false);
+            }
+
+            private System.Windows.Forms.RichTextBox errormsg;
+            private System.Windows.Forms.Button bt_abort;
+            private System.Windows.Forms.Button bt_ignore;
+
+            #endregion
+
+            bool allowClose = false;
+            private void Bt_abort_Click(object sender, EventArgs e) { Process.GetCurrentProcess().Kill(); }
+            private void Bt_ignore_Click(object sender, EventArgs e) { Thread _n = new Thread(OnIgnore); _n.Start(); allowClose = true; Close(); }
+            private void ErrorForm_Loaded(object sender, EventArgs e) { errormsg.Text = _Text; this.Text = _Title; }
+            private void ErrorForm_Closing(object sender, System.Windows.Forms.FormClosingEventArgs e) { if (!allowClose) { this.Text = "EgeSupX"; e.Cancel = true; return; } }
+        }
+
         public class Math
         {
-
             #region Math.Random() - Generates a random number within the specified range.
 
             /// <summary>
