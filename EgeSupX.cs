@@ -17,10 +17,27 @@ using System.Diagnostics;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 
+
 // Made by EgeSuperMine. Copyright(c) 2024. All Rights reserved.
-// Version: 1.0.4
+// Version: 1.0.5
+
+// SETUP: \\
+// 1. Put the code below to your Main Window:
+
+// readonly EgeSupX EgeSupX = new EgeSupX();
+// public static MainWindow rwindow;
+
+// 2. Put this code to your Loaded Event:
+
+// rwindow = this;
+
+// /!\ You have to enable System.Windows.Forms and System.Drawing or EgeSupX won't work!
+// Your Main Window has to be called "MainWindow" or EgeSupX won't work!
+
+///////////////////////////////////////////////////////
 
 // Thank you for using EgeSupX!
+
 
 namespace YourNamespace // Your Namespace goes here...
 {
@@ -55,12 +72,20 @@ namespace YourNamespace // Your Namespace goes here...
             public static string _Text;
             public static string _Title;
             public static bool canIgnore;
+            public static bool isOpen;
             public static ThreadStart OnIgnore;
 
             public static void Create(MainWindow window, string text, string title, bool CanIgnore, ThreadStart onIgnore = null)
             {
+                isOpen = true;
                 Application.Current.Dispatcher.Invoke(() => { window.WindowState = System.Windows.WindowState.Minimized; });
                 if (onIgnore == null) { onIgnore = new ThreadStart(() => { return; }); }
+                Thread FREEZE = new Thread(() => {
+                    while (isOpen)
+                    {
+                        Application.Current.Dispatcher.Invoke(() => { window.WindowState = System.Windows.WindowState.Minimized; });
+                        Thread.Sleep(100);
+                }   }); FREEZE.Start();
                 OnIgnore = onIgnore;
 
                 _Text = text;
@@ -153,9 +178,9 @@ namespace YourNamespace // Your Namespace goes here...
 
             bool allowClose = false;
             private void Bt_abort_Click(object sender, EventArgs e) { Process.GetCurrentProcess().Kill(); }
-            private void Bt_ignore_Click(object sender, EventArgs e) { Thread _n = new Thread(OnIgnore); _n.Start(); allowClose = true; Close(); }
+            private void Bt_ignore_Click(object sender, EventArgs e) { Thread _n = new Thread(OnIgnore); _n.Start(); allowClose = true; isOpen = false; Close(); }
             private void ErrorForm_Loaded(object sender, EventArgs e) { errormsg.Text = _Text; this.Text = _Title; }
-            private void ErrorForm_Closing(object sender, System.Windows.Forms.FormClosingEventArgs e) { if (!allowClose) { this.Text = "EgeSupX"; e.Cancel = true; return; } }
+            private void ErrorForm_Closing(object sender, System.Windows.Forms.FormClosingEventArgs e) { isOpen = false; if (!allowClose) { this.Text = "EgeSupX"; e.Cancel = true; return; } }
         }
 
         public class Math
@@ -168,24 +193,23 @@ namespace YourNamespace // Your Namespace goes here...
             /// <returns>
             /// A random number within the specified range.
             /// </returns>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="NullReferenceException"></exception>
             /// <exception cref="ArgumentOutOfRangeException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
             public static double Random(double Min, double Max, bool force = false)
             {
-                if (force) {
+                try
+                {
                     Random rnd = new Random();
                     double random = rnd.Next((int)Min, (int)Max + 1);
                     return random;
-                } else {
-                    try
-                    {
-                        Random rnd = new Random();
-                        double random = rnd.Next((int)Min, (int)Max + 1);
-                        return random;
-                    } catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+                }
+                catch (Exception ex)
+                {
+                    if (ex is ArgumentOutOfRangeException) {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"Max\" must be bigger than parameter \"Min\". " +
+                        $"--> [Min ({Min}) > Max ({Max})]\n\n{ex}", "Math.Random()", !force);
+                    } else {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Math.Random()\n\n{ex}", "Math.Random()", !force);
+                    }
                 }
 
                 return double.NaN;
@@ -199,18 +223,14 @@ namespace YourNamespace // Your Namespace goes here...
             /// <returns>
             /// A random decimal number within the specified range, with the specified number of decimal digits.
             /// </returns>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="NullReferenceException"></exception>
             /// <exception cref="ArgumentOutOfRangeException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
             public static double RandomDouble(double Min, double Max, byte digits, bool force = false)
             {
-                if (force)
+                try
                 {
                     Random rnd = new Random();
                     double random = rnd.Next((int)Min, (int)Max + 1);
-                    double randomDecimal;
+                    double randomDecimal = double.NaN;
                     if (digits <= 0) { return random; }
                     if (digits == 1) { randomDecimal = rnd.Next(1, 10); random += randomDecimal / 10; }
                     if (digits == 2) { randomDecimal = rnd.Next(10, 100); random += randomDecimal / 100; }
@@ -221,30 +241,24 @@ namespace YourNamespace // Your Namespace goes here...
                     if (digits == 7) { randomDecimal = rnd.Next(1000000, 10000000); random += randomDecimal / 10000000; }
                     if (digits == 8) { randomDecimal = rnd.Next(10000000, 100000000); random += randomDecimal / 100000000; }
                     if (digits == 9) { randomDecimal = rnd.Next(100000000, 1000000000); random += randomDecimal / 1000000000; }
-                    if (digits >= 10) { MessageBox.Show($"Maximum Digit Number is 9.\n\nError: {digits} > 9\n\n\n", "EgeSupX.Math.RandomDecimal()", MessageBoxButton.OK); }
-                    return random;
-                }
-                else
-                {
-                    try
+                    if (digits >= 10)
                     {
-                        Random rnd = new Random();
-                        double random = rnd.Next((int)Min, (int)Max + 1);
-                        double randomDecimal = double.NaN;
-                        if (digits <= 0) { randomDecimal = 0; }
-                        if (digits == 1) { randomDecimal = rnd.Next(1, 10); random += randomDecimal / 10; }
-                        if (digits == 2) { randomDecimal = rnd.Next(10, 100); random += randomDecimal / 100; }
-                        if (digits == 3) { randomDecimal = rnd.Next(100, 1000); random += randomDecimal / 1000; }
-                        if (digits == 4) { randomDecimal = rnd.Next(1000, 10000); random += randomDecimal / 10000; }
-                        if (digits == 5) { randomDecimal = rnd.Next(10000, 100000); random += randomDecimal / 100000; }
-                        if (digits == 6) { randomDecimal = rnd.Next(100000, 1000000); random += randomDecimal / 1000000; }
-                        if (digits == 7) { randomDecimal = rnd.Next(1000000, 10000000); random += randomDecimal / 10000000; }
-                        if (digits == 8) { randomDecimal = rnd.Next(10000000, 100000000); random += randomDecimal / 100000000; }
-                        if (digits == 9) { randomDecimal = rnd.Next(100000000, 1000000000); random += randomDecimal / 1000000000; }
-                        if (digits >= 10) { MessageBox.Show($"Maximum Digit Number is 9.\n\nError: {digits} > 9\n\n\n", "EgeSupX.Math.RandomDecimal()", MessageBoxButton.OK); }
-                        return random;
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"digits\" must be lower than 10. " +
+                        $"--> [digits ({digits}) > 9]\n\n", "Math.Random()", !force);
+                        return 0;
                     }
-                    catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+                }
+                catch (Exception ex)
+                {
+                    if (ex is ArgumentOutOfRangeException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"Max\" must be bigger than parameter \"Min\". " +
+                        $"--> [Min ({Min}) > Max ({Max})]\n\n{ex}", "Math.RandomDouble()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Math.RandomDouble()\n\n{ex}", "Math.RandomDouble()", !force);
+                    }
                 }
 
                 return double.NaN;
@@ -257,39 +271,35 @@ namespace YourNamespace // Your Namespace goes here...
             /// Generates a random string within the specified length.
             /// </summary>
             /// <returns>A random string within the specified length.</returns>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="ArgumentOutOfRangeException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
+            /// <exception cref="OutOfMemoryException"></exception>
             public static string RandomString(int length, bool force = false)
             {
-                if (force) {
-                    if (length <= 0) { MessageBox.Show($"Parameter \"length\" out of range.\n\nlength ({length}) < 1", "EgeSupX.Math.RandomString()", MessageBoxButton.OK); return null; }
+                try
+                {
+                    if (length <= 0) { Error.Create(MainWindow.rwindow, $"Error: Parameter \"length\" must be bigger than 0. --> [length ({length}) < 1]", "Math.RandomString()", !force); return null; }
                     Random random = new Random();
                     string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
                     StringBuilder stringBuilder = new StringBuilder(length);
 
-                    for (int i = 0; i < length; i++) {
+                    for (int i = 0; i < length; i++)
+                    {
                         stringBuilder.Append(chars[random.Next(chars.Length)]);
                     }
 
                     return stringBuilder.ToString();
-                } else {
-                    try {
-                        Random random = new Random();
-                        string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-                        StringBuilder stringBuilder = new StringBuilder(length);
-
-                        for (int i = 0; i < length; i++)
-                        {
-                            stringBuilder.Append(chars[random.Next(chars.Length)]);
-                        }
-
-                        return stringBuilder.ToString();
-                    } catch (Exception ex) { Console.WriteLine(ex); }
                 }
-
+                catch (Exception ex)
+                {
+                    if (ex is OutOfMemoryException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Out of Memory. " +
+                        $"\n\n{ex}", "Math.RandomString()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Math.RandomString()\n\n{ex}", "Math.RandomString()", !force);
+                    }
+                }
                 return null;
             }
 
@@ -303,14 +313,11 @@ namespace YourNamespace // Your Namespace goes here...
             /// <summary>
             /// <para><i>No Description provided.</i></para>
             /// </summary>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="ArgumentException"></exception>
             /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
+            /// <exception cref="UriFormatException"></exception>
             public static void Play(MediaPlayer player, string uri, TimeSpan time, double volume = 100, double playspeed = 1, bool force = false)
             {
-                if (force)
+                try
                 {
                     player.Open(new Uri(uri));
                     if (time != TimeSpan.Zero) { player.Position = time; }
@@ -318,16 +325,27 @@ namespace YourNamespace // Your Namespace goes here...
                     if (playspeed != 1) { player.SpeedRatio = playspeed; }
                     Application.Current.Dispatcher.Invoke(() => { player.Play(); });
                 }
-                else
+                catch (Exception ex)
                 {
-                    try
+                    if (ex is NullReferenceException)
                     {
-                        player.Open(new Uri(uri));
-                        if (time != TimeSpan.Zero) { player.Position = time; }
-                        if (volume != 100) { player.Volume = volume / 200; }
-                        if (playspeed != 1) { player.SpeedRatio = playspeed; }
-                        Application.Current.Dispatcher.Invoke(() => { player.Play(); });
-                    } catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"player\" cannot be null." +
+                        $"\n\n{ex}", "Media.Open()", !force);
+                    }
+                    else if (ex is UriFormatException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Uri Format not recognized or is empty." +
+                        $"\n\n{ex}", "Media.Open()", !force);
+                    }
+                    else if (ex is ArgumentNullException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Uri cannot be null." +
+                        $"\n\n{ex}", "Media.Open()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Media.Play()\n\n{ex}", "Media.Play()", !force);
+                    }
                 }
             }
 
@@ -342,9 +360,21 @@ namespace YourNamespace // Your Namespace goes here...
             /// <exception cref="NullReferenceException"></exception>
             /// <exception cref="UnauthorizedAccessException"></exception>
             /// <exception cref="NotSupportedException"></exception>
-            public static void Play(MediaPlayer player)
+            public static void Play(MediaPlayer player, bool force = false)
             {
-                Application.Current.Dispatcher.Invoke(() => { player.Play(); });
+                try { Application.Current.Dispatcher.Invoke(() => { player.Play(); }); }
+                catch (Exception ex)
+                {
+                    if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"player\" cannot be null." +
+                        $"\n\n{ex}", "Media.Play()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Media.Play()\n\n{ex}", "Media.Play()", !force);
+                    }
+                }
             }
 
             #endregion
@@ -358,9 +388,19 @@ namespace YourNamespace // Your Namespace goes here...
             /// <exception cref="NullReferenceException"></exception>
             /// <exception cref="UnauthorizedAccessException"></exception>
             /// <exception cref="NotSupportedException"></exception>
-            public static void Stop(MediaPlayer player)
+            public static void Stop(MediaPlayer player, bool force = false)
             {
-                player.Stop();
+                try { player.Stop(); } catch (Exception ex) {
+                    if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"player\" cannot be null." +
+                        $"\n\n{ex}", "Media.Stop()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Media.Stop()\n\n{ex}", "Media.Stop()", !force);
+                    }
+                }
             }
 
             #endregion
@@ -369,14 +409,32 @@ namespace YourNamespace // Your Namespace goes here...
             /// <summary>
             /// Sets the Path for the MediaPlayer.
             /// </summary>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="ArgumentException"></exception>
             /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
-            public static void Open(MediaPlayer player, string uri)
+            /// <exception cref="UriFormatException"></exception>
+            /// <exception cref="ArgumentNullException"></exception>
+            public static void Open(MediaPlayer player, string uri, bool force = false)
             {
-                player.Open(new Uri(uri));
+                try { player.Open(new Uri(uri)); } catch (Exception ex) {
+                    if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"player\" cannot be null." +
+                        $"\n\n{ex}", "Media.Open()", !force);
+                    }
+                    else if (ex is UriFormatException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Uri Format not recognized or is empty." +
+                        $"\n\n{ex}", "Media.Open()", !force);
+                    }
+                    else if (ex is ArgumentNullException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Uri cannot be null." +
+                        $"\n\n{ex}", "Media.Open()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Media.Open()\n\n{ex}", "Media.Open()", !force);
+                    }
+                }
             }
 
             #endregion
@@ -385,14 +443,20 @@ namespace YourNamespace // Your Namespace goes here...
             /// <summary>
             /// Sets the Position of the MediaPlayer.
             /// </summary>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="ArgumentException"></exception>
             /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
-            public static void Position(MediaPlayer player, TimeSpan time)
+            public static void Position(MediaPlayer player, TimeSpan time, bool force = false)
             {
-                player.Position = time;
+                try { player.Position = time; } catch (Exception ex) {
+                    if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"player\" cannot be null." +
+                        $"\n\n{ex}", "Media.Position()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Media.Position()\n\n{ex}", "Media.Position()", !force);
+                    }
+                }
             }
 
             #endregion
@@ -401,15 +465,22 @@ namespace YourNamespace // Your Namespace goes here...
             /// <summary>
             /// Sets the Volume of the MediaPlayer.
             /// </summary>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="ArgumentException"></exception>
             /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
 
-            public static void Volume(MediaPlayer player, double volume)
+            public static void Volume(MediaPlayer player, double volume, bool force = false)
             {
-                player.Volume = volume / 200;
+                try { player.Volume = volume / 200; } catch (Exception ex)
+                {
+                    if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"player\" cannot be null." +
+                        $"\n\n{ex}", "Media.Volume()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Media.Position()\n\n{ex}", "Media.Position()", !force);
+                    }
+                }
             }
 
             #endregion
@@ -418,14 +489,21 @@ namespace YourNamespace // Your Namespace goes here...
             /// <summary>
             /// Sets the Speed of the MediaPlayer.
             /// </summary>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="ArgumentException"></exception>
             /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
-            public static void PlaySpeed(MediaPlayer player, double speed)
+            public static void PlaySpeed(MediaPlayer player, double speed, bool force = false)
             {
-                player.SpeedRatio = speed;
+                try { player.SpeedRatio = speed; }catch (Exception ex)
+                {
+                    if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"player\" cannot be null." +
+                        $"\n\n{ex}", "Media.PlaySpeed()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Media.PlaySpeed()\n\n{ex}", "Media.PlaySpeed()", !force);
+                    }
+                }
             }
 
             #endregion
@@ -441,22 +519,41 @@ namespace YourNamespace // Your Namespace goes here...
             /// <returns>
             /// True if the Application is running as Administrator, otherwise False.
             /// </returns>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="SecurityException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
+            /// <exception cref="SecurityException">Thrown when the caller does not have the required permission to access the Windows user information or perform the operation.</exception>
+            /// <exception cref="NotSupportedException">Thrown if the platform does not support the operation.</exception>
+            /// <exception cref="PlatformNotSupportedException">Thrown if the platform does not support Windows identity or role management.</exception>
+            /// <exception cref="OutOfMemoryException">Thrown if there is insufficient memory to perform the operation.</exception>
+            /// <exception cref="SystemException">Thrown for various system-related errors, such as out-of-memory conditions or corrupted states.</exception>
             public static bool IsAdministrator(bool force = false)
             {
-                if (force) {
+                try
+                {
                     WindowsIdentity identity = WindowsIdentity.GetCurrent();
                     WindowsPrincipal principal = new WindowsPrincipal(identity);
                     return principal.IsInRole(WindowsBuiltInRole.Administrator);
-                } else {
-                    try {
-                        WindowsIdentity identity = WindowsIdentity.GetCurrent();
-                        WindowsPrincipal principal = new WindowsPrincipal(identity);
-                        return principal.IsInRole(WindowsBuiltInRole.Administrator);
-                    } catch (Exception ex) { Console.WriteLine(ex); }
+                } catch (Exception ex)
+                {
+                    if (ex is SecurityException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Permission Declined.\n\n{ex}", "Security.IsAdministrator()", !force);
+                    }
+                    else if (ex is NotSupportedException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Operation not supported.\n\n{ex}", "Security.IsAdministrator()", !force);
+                    }
+                    else if (ex is PlatformNotSupportedException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Platform not supported.\n\n{ex}", "Security.IsAdministrator()", !force);
+                    }
+                    else if (ex is OutOfMemoryException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Out of Memory.\n\n{ex}", "Security.IsAdministrator()", !force);
+                    }
+                    else if (ex is SystemException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: System Failure.\n\n{ex}", "Security.IsAdministrator()", !force);
+                    }
+                    Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Security.IsAdministrator()\n\n{ex}", "Security.IsAdministrator()", !force);
                 }
 
                 return false;
@@ -483,7 +580,34 @@ namespace YourNamespace // Your Namespace goes here...
             /// <summary>
             /// Starts tracking the runtime of the application.
             /// </summary>
-            public static void Start() { _runtime.Start(); _runtimes.Start(); _runtimem.Start(); _runtimeh.Start(); _runtimed.Start(); }
+            /// <exception cref="ThreadStateException">Thrown if the thread is in an invalid state for the requested operation.</exception>
+            /// <exception cref="OutOfMemoryException">Thrown if there is insufficient memory to create or start a new thread.</exception>
+            /// <exception cref="PlatformNotSupportedException">Thrown if the platform does not support the creation or management of threads.</exception>
+            public static void Start()
+            {
+                try { _runtime.Start(); _runtimes.Start(); _runtimem.Start(); _runtimeh.Start(); _runtimed.Start(); } catch (Exception ex)
+                {
+                    if (ex is ThreadStateException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Thread State invalid." +
+                        $"\n\n{ex}", "Runtime.Start()", false);
+                    }
+                    else if (ex is OutOfMemoryException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Out of Memory." +
+                        $"\n\n{ex}", "Runtime.Start()", false);
+                    }
+                    else if (ex is PlatformNotSupportedException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Platform not supported." +
+                        $"\n\n{ex}", "Runtime.Start()", false);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Runtime.Start()\n\n{ex}", "Runtime.Start()", false);
+                    }
+                }
+            }
 
             #endregion
             #region Runtime.GetRuntime() - Gets the runtime of the application in the specified time unit.
@@ -494,14 +618,17 @@ namespace YourNamespace // Your Namespace goes here...
             /// <returns>
             /// The runtime of the application. If a time unit is specified, returns the runtime in that unit; otherwise, returns the total runtime in seconds.
             /// </returns>
-            public static double GetRuntime(string _as = null)
+            public static double GetRuntime(string _as = null, bool force = false)
             {
-                if (_as == null) { return runtime; }
-                else if (_as.ToLower() == "seconds" || _as.ToLower() == "s") { return runtime_s; }
-                else if (_as.ToLower() == "minutes" || _as.ToLower() == "m") { return runtime_m; }
-                else if (_as.ToLower() == "hours" || _as.ToLower() == "h") { return runtime_h; }
-                else if (_as.ToLower() == "days" || _as.ToLower() == "d") { return runtime_d; }
-                else { MessageBox.Show("Invalid [as] Type.", "EgeSupX.Runtime.GetRuntime()", MessageBoxButton.OK); }
+                try
+                {
+                    if (_as == null) { return runtime; }
+                    else if (_as.ToLower() == "seconds" || _as.ToLower() == "s") { return runtime_s; }
+                    else if (_as.ToLower() == "minutes" || _as.ToLower() == "m") { return runtime_m; }
+                    else if (_as.ToLower() == "hours" || _as.ToLower() == "h") { return runtime_h; }
+                    else if (_as.ToLower() == "days" || _as.ToLower() == "d") { return runtime_d; }
+                    else { Error.Create(MainWindow.rwindow, "Error: Invalid [as] Type.\n\n", "Runtime.GetRuntime()", !force); }
+                } catch (Exception ex) { Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Runtime.GetRuntime()\n\n{ex}", "Runtime.GetRuntime()", !force); }
 
                 return runtime;
             }
@@ -516,30 +643,26 @@ namespace YourNamespace // Your Namespace goes here...
             /// <summary>
             /// Sets the Position of the UI Element.
             /// </summary>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="ArgumentException"></exception>
-            /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
+            /// <exception cref="ArgumentNullException">Thrown if the provided element is null.</exception>
             public static void Move(UIElement element, double x, double y, bool force = false)
             {
-                if (force)
+                try
                 {
                     Application.Current.Dispatcher.Invoke(() => {
                         Canvas.SetLeft(element, x);
                         Canvas.SetTop(element, y);
                     });
-                }
-                else
+                } catch (Exception ex)
                 {
-                    try
+                    if (ex is ArgumentNullException)
                     {
-                        Application.Current.Dispatcher.Invoke(() => {
-                            Canvas.SetLeft(element, x);
-                            Canvas.SetTop(element, y);
-                        });
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"element\" cannot be null." +
+                        $"\n\n{ex}", "UI.Move()", !force);
                     }
-                    catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.UI.Move()\n\n{ex}", "UI.Move()", !force);
+                    }
                 }
             }
 
@@ -552,29 +675,25 @@ namespace YourNamespace // Your Namespace goes here...
             /// <returns>
             /// The X (Left) Position of the Window.
             /// </returns>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
+            /// <exception cref="ArgumentNullException"></exception>
             public static double GetX(UIElement element, bool force = false)
             {
                 double i = -1;
 
-                if (force)
-                {
+                try {
                     Application.Current.Dispatcher.Invoke(() => {
                         i = Canvas.GetLeft(element);
-                    });
-                }
-                else
-                {
-                    try
+                    }); return i;
+                } catch (Exception ex) {
+                    if (ex is ArgumentNullException)
                     {
-                        Application.Current.Dispatcher.Invoke(() => {
-                            i = Canvas.GetLeft(element);
-                        });
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"element\" cannot be null." +
+                        $"\n\n{ex}", "UI.GetX()", !force);
                     }
-                    catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.UI.GetX()\n\n{ex}", "UI.GetX()", !force);
+                    }
                 }
 
                 return i;
@@ -589,29 +708,25 @@ namespace YourNamespace // Your Namespace goes here...
             /// <returns>
             /// The Y (Top) Position of the Window.
             /// </returns>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
+            /// <exception cref="ArgumentNullException"></exception>
             public static double GetY(UIElement element, bool force = false)
             {
                 double i = -1;
 
-                if (force)
-                {
+                try {
                     Application.Current.Dispatcher.Invoke(() => {
                         i = Canvas.GetTop(element);
-                    });
-                }
-                else
-                {
-                    try
+                    }); return i;
+                } catch (Exception ex) {
+                    if (ex is ArgumentNullException)
                     {
-                        Application.Current.Dispatcher.Invoke(() => {
-                            i = Canvas.GetTop(element);
-                        });
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"element\" cannot be null." +
+                        $"\n\n{ex}", "UI.GetY()", !force);
                     }
-                    catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.UI.GetY()\n\n{ex}", "UI.GetY()", !force);
+                    }
                 }
 
                 return i;
@@ -624,15 +739,10 @@ namespace YourNamespace // Your Namespace goes here...
             /// <summary>
             /// Sets the Size of the UI Element.
             /// </summary>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="ArgumentException"></exception>
-            /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
+            /// <exception cref="ArgumentNullException"></exception>
             public static void Resize(UIElement element, double width, double height, bool force = false)
             {
-                if (force)
-                {
+                try {
                     Application.Current.Dispatcher.Invoke(() => {
                         if (element is FrameworkElement elementF)
                         {
@@ -640,20 +750,16 @@ namespace YourNamespace // Your Namespace goes here...
                             elementF.Height = height;
                         }
                     });
-                }
-                else
-                {
-                    try
+                } catch (Exception ex) {
+                    if (ex is ArgumentNullException)
                     {
-                        Application.Current.Dispatcher.Invoke(() => {
-                            if (element is FrameworkElement elementF)
-                            {
-                                elementF.Width = width;
-                                elementF.Height = height;
-                            }
-                        });
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"element\" cannot be null." +
+                        $"\n\n{ex}", "UI.Resize()", !force);
                     }
-                    catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.UI.Resize()\n\n{ex}", "UI.Resize()", !force);
+                    }
                 }
             }
 
@@ -666,29 +772,24 @@ namespace YourNamespace // Your Namespace goes here...
             /// <returns>
             /// The Width of the UI Element.
             /// </returns>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
+            /// <exception cref="ArgumentNullException"></exception>
             public static double GetWidth(UIElement element, bool force = false)
             {
-                if (force)
-                {
+                try {
                     double i = double.NaN;
 
-                    Application.Current.Dispatcher.Invoke(() => { if (element is FrameworkElement elementF) { i = elementF.Width; }});
+                    Application.Current.Dispatcher.Invoke(() => { if (element is FrameworkElement elementF) { i = elementF.Width; } });
                     return i;
-                }
-                else
-                {
-                    try
+                } catch (Exception ex) {
+                    if (ex is ArgumentNullException)
                     {
-                        double i = double.NaN;
-
-                        Application.Current.Dispatcher.Invoke(() => { if (element is FrameworkElement elementF) { i = elementF.Width; } });
-                        return i;
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"element\" cannot be null." +
+                        $"\n\n{ex}", "UI.GetWidth()", !force);
                     }
-                    catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.UI.GetWidth()\n\n{ex}", "UI.GetWidth()", !force);
+                    }
                 }
 
                 return double.NaN;
@@ -703,29 +804,24 @@ namespace YourNamespace // Your Namespace goes here...
             /// <returns>
             /// The Height of the UI Element.
             /// </returns>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
+            /// <exception cref="ArgumentNullException"></exception>
             public static double GetHeight(UIElement element, bool force = false)
             {
-                if (force)
-                {
+                try {
                     double i = double.NaN;
 
                     Application.Current.Dispatcher.Invoke(() => { if (element is FrameworkElement elementF) { i = elementF.Height; } });
                     return i;
-                }
-                else
-                {
-                    try
+                } catch (Exception ex) {
+                    if (ex is ArgumentNullException)
                     {
-                        double i = double.NaN;
-
-                        Application.Current.Dispatcher.Invoke(() => { if (element is FrameworkElement elementF) { i = elementF.Height; } });
-                        return i;
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"element\" cannot be null." +
+                        $"\n\n{ex}", "UI.GetHeight()", !force);
                     }
-                    catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.UI.GetHeight()\n\n{ex}", "UI.GetHeight()", !force);
+                    }
                 }
 
                 return double.NaN;
@@ -744,14 +840,19 @@ namespace YourNamespace // Your Namespace goes here...
             /// <returns>
             /// The Current Style of the Window.
             /// </returns>
-            /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
             public static WindowStyle GetStyle(MainWindow window, bool force = false)
             {
-                if (force) { Application.Current.Dispatcher.Invoke(() => { return window.WindowStyle; }); } else {
-                    try { Application.Current.Dispatcher.Invoke(() => { return window.WindowStyle; }); } catch (Exception ex) { Console.WriteLine(ex); }
+                try { Application.Current.Dispatcher.Invoke(() => { return window.WindowStyle; }); } catch (Exception ex) {
+                    if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"window\" cannot be null." +
+                        $"\n\n{ex}", "Window.GetStyle()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Window.GetStyle()\n\n{ex}", "Window.GetStyle()", !force);
+                    }
                 }
 
                 return WindowStyle.None;
@@ -763,15 +864,19 @@ namespace YourNamespace // Your Namespace goes here...
             /// <summary>
             /// Sets the Current Style of the Window.
             /// </summary>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="ArgumentException"></exception>
             /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
             public static void SetStyle(MainWindow window, WindowStyle style, bool force = false)
             {
-                if (force) { Application.Current.Dispatcher.Invoke(() => { window.WindowStyle = style; }); } else {
-                    try { Application.Current.Dispatcher.Invoke(() => { window.WindowStyle = style; }); } catch (Exception ex) { Console.WriteLine(ex); }
+                try { Application.Current.Dispatcher.Invoke(() => { window.WindowStyle = style; }); } catch (Exception ex) {
+                    if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"window\" cannot be null." +
+                        $"\n\n{ex}", "Window.SetStyle()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Window.SetStyle()\n\n{ex}", "Window.SetStyle()", !force);
+                    }
                 }
             }
 
@@ -785,14 +890,19 @@ namespace YourNamespace // Your Namespace goes here...
             /// <returns>
             /// The Current State of the Window.
             /// </returns>
-            /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
             public static WindowState GetState(MainWindow window, bool force = false)
             {
-                if (force) { Application.Current.Dispatcher.Invoke(() => { return window.WindowState; }); } else {
-                    try { Application.Current.Dispatcher.Invoke(() => { return window.WindowState; }); } catch (Exception ex) { Console.WriteLine(ex); }
+                try { Application.Current.Dispatcher.Invoke(() => { return window.WindowState; }); } catch (Exception ex) {
+                    if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"window\" cannot be null." +
+                        $"\n\n{ex}", "Window.GetState()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Window.GetState()\n\n{ex}", "Window.GetState()", !force);
+                    }
                 }
 
                 return WindowState.Normal;
@@ -804,15 +914,19 @@ namespace YourNamespace // Your Namespace goes here...
             /// <summary>
             /// Sets the Current State of the Window.
             /// </summary>
-            /// <exception cref="InvalidOperationException"></exception>
-            /// <exception cref="ArgumentException"></exception>
             /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
             public static void SetState(MainWindow window, WindowState state, bool force = false)
             {
-                if (force) { Application.Current.Dispatcher.Invoke(() => { window.WindowState = state; }); } else {
-                    try { Application.Current.Dispatcher.Invoke(() => { window.WindowState = state; }); } catch (Exception ex) { Console.WriteLine(ex); }
+                try { Application.Current.Dispatcher.Invoke(() => { window.WindowState = state; }); } catch (Exception ex) {
+                    if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"window\" cannot be null." +
+                        $"\n\n{ex}", "Window.SetState()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Window.SetState()\n\n{ex}", "Window.SetState()", !force);
+                    }
                 }
             }
 
@@ -826,14 +940,19 @@ namespace YourNamespace // Your Namespace goes here...
             /// <returns>
             /// The Resize Mode of the Window.
             /// </returns>
-            /// <exception cref="InvalidOperationException"></exception>
             /// <exception cref="NullReferenceException"></exception>
-            /// <exception cref="UnauthorizedAccessException"></exception>
-            /// <exception cref="NotSupportedException"></exception>
             public static ResizeMode GetResizeMode(MainWindow window, bool force = false)
             {
-                if (force) { Application.Current.Dispatcher.Invoke(() => { return window.ResizeMode; }); } else {
-                    try { Application.Current.Dispatcher.Invoke(() => { return window.ResizeMode; }); } catch (Exception ex) { Console.WriteLine(ex); }
+                try { Application.Current.Dispatcher.Invoke(() => { return window.ResizeMode; }); } catch (Exception ex) {
+                    if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"window\" cannot be null." +
+                        $"\n\n{ex}", "Window.GetResizeMode()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Window.GetResizeMode()\n\n{ex}", "Window.GetResizeMode()", !force);
+                    }
                 }
 
                 return ResizeMode.NoResize;
@@ -852,8 +971,16 @@ namespace YourNamespace // Your Namespace goes here...
             /// <exception cref="NotSupportedException"></exception>
             public static void SetResizeMode(MainWindow window, ResizeMode mode, bool force = false)
             {
-                if (force) { Application.Current.Dispatcher.Invoke(() => { window.ResizeMode = mode; }); } else {
-                    try { Application.Current.Dispatcher.Invoke(() => { window.ResizeMode = mode; }); } catch (Exception ex) { Console.WriteLine(ex); }
+                try { Application.Current.Dispatcher.Invoke(() => { window.ResizeMode = mode; }); } catch (Exception ex) {
+                    if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"window\" cannot be null." +
+                        $"\n\n{ex}", "Window.SetResizeMode()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Window.SetResizeMode()\n\n{ex}", "Window.SetResizeMode()", !force);
+                    }
                 }
             }
 
