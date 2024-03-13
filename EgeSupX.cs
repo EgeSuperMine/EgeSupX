@@ -16,10 +16,10 @@ using System.Net.Http;
 using System.Diagnostics;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-
+using System.Management;
 
 // Made by EgeSuperMine. Copyright(c) 2024. All Rights reserved.
-// Version: 1.0.5
+// Version: 1.0.6
 
 // SETUP: \\
 // 1. Put the code below to your Main Window:
@@ -27,7 +27,7 @@ using System.Runtime.CompilerServices;
 // readonly EgeSupX EgeSupX = new EgeSupX();
 // public static MainWindow rwindow;
 
-// 2. Put this code to your Loaded Event:
+// 2. Put the code below to your Loaded Event:
 
 // rwindow = this;
 
@@ -39,7 +39,7 @@ using System.Runtime.CompilerServices;
 // Thank you for using EgeSupX!
 
 
-namespace YourNamespace // Your Namespace goes here...
+namespace EgeSupX_Workspace // Your Namespace goes here...
 {
     public class EgeSupX
     {
@@ -75,6 +75,8 @@ namespace YourNamespace // Your Namespace goes here...
             public static bool isOpen;
             public static ThreadStart OnIgnore;
 
+            #region Error.Create()
+
             public static void Create(MainWindow window, string text, string title, bool CanIgnore, ThreadStart onIgnore = null)
             {
                 isOpen = true;
@@ -95,6 +97,8 @@ namespace YourNamespace // Your Namespace goes here...
                 if (title != null && title != "" && title != " ") { SetTitle(title); } else { SetTitle("EgeSupX"); }
                 System.Windows.Forms.Application.Run(new Error());
             }
+
+            #endregion
 
             private static void SetText(string text) { _Text = text; }
             private static void SetTitle(string title) { if (_Title != "EgeSupX") { _Title = "EgeSupX." + title; } else { _Title = "EgeSupX"; } }
@@ -553,10 +557,177 @@ namespace YourNamespace // Your Namespace goes here...
                     {
                         Error.Create(MainWindow.rwindow, $"Error: System Failure.\n\n{ex}", "Security.IsAdministrator()", !force);
                     }
-                    Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Security.IsAdministrator()\n\n{ex}", "Security.IsAdministrator()", !force);
+                    else { Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Security.IsAdministrator()\n\n{ex}", "Security.IsAdministrator()", !force); }
                 }
 
                 return false;
+            }
+
+            #endregion
+        }
+
+        public class Task
+        {
+            #region Task.Start() - Starts a new Task.
+
+            /// <summary>
+            /// Starts a new Task.
+            /// </summary>
+            /// <exception cref="ThreadStartException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
+            public static void Start(ThreadStart t, Thread id = null, bool force = false)
+            {
+                try { Application.Current.Dispatcher.Invoke(() => { id = new Thread(t); id.Start(); }); } catch (Exception ex)
+                {
+                    if (ex is ThreadStartException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Failed to Start Task.\n\n{ex}", "Task.Start()", !force);
+                    }
+                    else if (ex is NotSupportedException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Operation not supported.\n\n{ex}", "Task.Start()", !force);
+                    }
+                    else { Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Task.Start()\n\n{ex}", "Task.Start()", !force); }
+                }
+            }
+
+            #endregion
+            #region Task.Abort() - Aborts a Task.
+
+            /// <summary>
+            /// Starts a new Task.
+            /// </summary>
+            /// <exception cref="ThreadAbortException"></exception>
+            /// <exception cref="NotSupportedException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            public static void Abort(Thread id, bool force = false)
+            {
+                try { Application.Current.Dispatcher.Invoke(() => { id.Abort(); }); } catch (Exception ex) {
+                    if (ex is ThreadAbortException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Failed to Abort Task.\n\n{ex}", "Task.Abort()", !force);
+                    }
+                    else if (ex is NotSupportedException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Operation not supported.\n\n{ex}", "Task.Abort()", !force);
+                    }
+                    else if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"id\" cannot be null.\n\n{ex}", "Task.Abort()", !force);
+                    }
+                    else { Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Task.Abort()\n\n{ex}", "Task.Abort()", !force); }
+                }
+            }
+
+            #endregion
+            #region Task.GetStatus() - Gets if the Task is running or not.
+
+            /// <summary>
+            /// Gets if the Task is running or not.
+            /// </summary>
+            /// <returns>
+            /// True if the Task is Runnning, otherwise False.
+            /// </returns>
+            /// <exception cref="NotSupportedException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            public static bool GetStatus(Thread id, bool force = false)
+            {
+                try { Application.Current.Dispatcher.Invoke(() => { return id.IsAlive; }); } catch (Exception ex) {
+                    if (ex is NotSupportedException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Operation not supported.\n\n{ex}", "Task.GetStatus()", !force);
+                    }
+                    else if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"id\" cannot be null.\n\n{ex}", "Task.GetStatus()", !force);
+                    }
+                    else { Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Task.GetStatus()\n\n{ex}", "Task.GetStatus()", !force); }
+                }
+
+                return false;
+            }
+
+            #endregion
+            #region Task.GetState() - Gets the State of the Task.
+
+            /// <summary>
+            /// Gets the State of the Task.
+            /// </summary>
+            /// <returns>
+            /// The State of the Task.
+            /// </returns>
+            /// <exception cref="NotSupportedException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            public static System.Threading.ThreadState GetState(Thread id, bool force = false)
+            {
+                try { Application.Current.Dispatcher.Invoke(() => { return id.ThreadState; }); }
+                catch (Exception ex)
+                {
+                    if (ex is NotSupportedException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Operation not supported.\n\n{ex}", "Task.GetState()", !force);
+                    }
+                    else if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"id\" cannot be null.\n\n{ex}", "Task.GetState()", !force);
+                    }
+                    else { Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Task.GetState()\n\n{ex}", "Task.GetState()", !force); }
+                }
+
+                return System.Threading.ThreadState.Unstarted;
+            }
+
+            #endregion
+            #region Task.GetApartmentState() - Gets the Apartment State of the Task.
+
+            /// <summary>
+            /// Gets the Apartment State of the Task.
+            /// </summary>
+            /// <returns>
+            /// The Apartment State of the Task.
+            /// </returns>
+            /// <exception cref="NotSupportedException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            public static ApartmentState GetApartmentState(Thread id, bool force = false)
+            {
+                try { Application.Current.Dispatcher.Invoke(() => { return id.GetApartmentState(); }); }
+                catch (Exception ex)
+                {
+                    if (ex is NotSupportedException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Operation not supported.\n\n{ex}", "Task.GetApartmentState()", !force);
+                    }
+                    else if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"id\" cannot be null.\n\n{ex}", "Task.GetApartmentState()", !force);
+                    }
+                    else { Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Task.GetApartmentState()\n\n{ex}", "Task.GetApartmentState()", !force); }
+                }
+
+                return ApartmentState.Unknown;
+            }
+
+            #endregion
+            #region Task.SetApartmentState() - Sets the Apartment State of the Task.
+
+            /// <summary>
+            /// Sets the Apartment State of the Task.
+            /// </summary>
+            /// <exception cref="NotSupportedException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            public static void SetApartmentState(Thread id, ApartmentState state, bool force = false)
+            {
+                try { Application.Current.Dispatcher.Invoke(() => { id.SetApartmentState(state); }); } catch (Exception ex) {
+                    if (ex is NotSupportedException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Operation not supported.\n\n{ex}", "Task.SetApartmentState()", !force);
+                    }
+                    else if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"id\" cannot be null.\n\n{ex}", "Task.SetApartmentState()", !force);
+                    }
+                    else { Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Task.SetApartmentState()\n\n{ex}", "Task.SetApartmentState()", !force); }
+                }
             }
 
             #endregion
