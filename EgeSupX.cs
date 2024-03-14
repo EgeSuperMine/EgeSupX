@@ -19,7 +19,7 @@ using System.Runtime.CompilerServices;
 using System.Management;
 
 // Made by EgeSuperMine. Copyright(c) 2024. All Rights reserved.
-// Version: 1.0.6
+// Version: 1.0.7
 
 // SETUP: \\
 // 1. Put the code below to your Main Window:
@@ -305,6 +305,22 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
                     }
                 }
                 return null;
+            }
+
+            #endregion
+            #region Math.Pi() - Returns the value of Pi (π) with the specified number of digits.
+
+            /// <summary>
+            /// Returns the value of Pi (π) with the specified number of digits.
+            /// </summary>
+            /// <returns>The value of Pi (π) with the specified number of decimal digits.</returns>
+            public static decimal Pi(sbyte digits = 0, bool force = false)
+            {
+                if (digits <= 0) { return 3.14159265358979323846264338327950288419716939937510m; }
+                if (digits > 0 && digits < 52) { return System.Math.Round(3.14159265358979323846264338327950288419716939937510m, digits); }
+                if (digits > 52) { Error.Create(MainWindow.rwindow, "Error: Parameter \"digits\" must be lower than 52.", "Math.Pi()", !force); }
+
+                return 3.14159265358979323846264338327950288419716939937510m;
             }
 
             #endregion
@@ -736,11 +752,18 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
         public class Runtime
         {
             public static double runtime = 0;
-            public static double runtime_s = 0;
+            public static double runtime_s = -1;
             public static double runtime_m = -1;
             public static double runtime_h = -1;
             public static double runtime_d = -1;
-            static readonly Thread _runtime = new Thread(t => { while (true) { runtime += 0.1; Thread.Sleep(100); } });
+            static readonly Thread _runtime = new Thread(t => {
+                long lastTick = Stopwatch.GetTimestamp(); long ticksPerMillisecond = Stopwatch.Frequency / 1000; while (true) {
+                    long currentTick = Stopwatch.GetTimestamp(); if (currentTick - lastTick >= ticksPerMillisecond) {
+                        runtime += 1;
+                        lastTick = currentTick;
+                    }
+                }
+            });
             static readonly Thread _runtimes = new Thread(t => { while (true) { runtime_s += 1; Thread.Sleep(1000); } });
             static readonly Thread _runtimem = new Thread(t => { while (true) { runtime_m += 1; Thread.Sleep(60000); } });
             static readonly Thread _runtimeh = new Thread(t => { while (true) { runtime_h += 1; Thread.Sleep(3600000); } });
