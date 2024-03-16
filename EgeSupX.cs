@@ -17,18 +17,20 @@ using System.Diagnostics;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Management;
+using System.Windows.Media.Effects;
+using System.Drawing;
 
 // Made by EgeSuperMine. Copyright(c) 2024. All Rights reserved.
-// Version: 1.0.7
+// Version: 1.0.8
 
 // SETUP: \\
 // 1. Put the code below to your Main Window:
 
-// readonly EgeSupX EgeSupX = new EgeSupX();
 // public static MainWindow rwindow;
 
 // 2. Put the code below to your Loaded Event:
 
+//EgeSupX EgeSupX = new EgeSupX();
 // rwindow = this;
 
 // /!\ You have to enable System.Windows.Forms and System.Drawing or EgeSupX won't work!
@@ -185,6 +187,200 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
             private void Bt_ignore_Click(object sender, EventArgs e) { Thread _n = new Thread(OnIgnore); _n.Start(); allowClose = true; isOpen = false; Close(); }
             private void ErrorForm_Loaded(object sender, EventArgs e) { errormsg.Text = _Text; this.Text = _Title; }
             private void ErrorForm_Closing(object sender, System.Windows.Forms.FormClosingEventArgs e) { isOpen = false; if (!allowClose) { this.Text = "EgeSupX"; e.Cancel = true; return; } }
+        }
+
+        public class Graphics
+        {
+            #region Graphics.Blur() - Creates a Blur Effect. The Default is 5.
+
+            /// <summary>
+            /// Creates a Blur Effect. The Default is 5.
+            /// </summary>
+            /// <exception cref="NullReferenceException"></exception>
+            public static void Blur(Grid target, byte range = 5, bool force = false)
+            {
+                try
+                {
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        BlurEffect blurEffect = new BlurEffect { Radius = range };
+                        target.Effect = blurEffect;
+                    });
+                } catch (Exception ex)
+                {
+                    if (ex is NullReferenceException)
+                    {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"target\" cannot be null." +
+                        $"\n\n{ex}", "Graphics.Blur()", !force);
+                    }
+                    else {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Graphics.Blur()\n\n{ex}", "Graphics.Blur()", !force);
+                    }
+                }
+            }
+
+            #endregion
+            #region Graphics.DropShadow() - Creates a Drop Shadow Effect.
+
+            /// <summary>
+            /// Creates a Drop Shadow Effect.
+            /// </summary>
+            /// <exception cref="NullReferenceException"></exception>
+            public static void DropShadow(UIElement target, byte depth = 5, System.Windows.Media.Color colors = default, byte radius = 5,
+                ushort direction = 315, bool force = false)
+            {
+                try {
+                    Application.Current.Dispatcher.Invoke(() => {
+                        DropShadowEffect dropShadowEffect = new DropShadowEffect
+                        {
+                            ShadowDepth = depth,
+                            Color = colors == default ? Colors.Black : colors,
+                            BlurRadius = radius,
+                            Direction = direction
+                        };
+                        target.Effect = dropShadowEffect;
+                    });
+                } catch (Exception ex)
+                {
+                    if (ex is NullReferenceException) {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"target\" cannot be null." +
+                        $"\n\n{ex}", "Graphics.DropShadow()", !force);
+                    }
+                    else {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Graphics.DropShadow()\n\n{ex}", "Graphics.DropShadow()", !force);
+                    }
+                }
+            }
+
+            #endregion
+            #region Graphics.Emboss() - Creates an Emboss Effect.
+
+            /// <summary>
+            /// Creates a Glow Effect.
+            /// </summary>
+            /// <exception cref="NullReferenceException"></exception>
+            public static void Emboss(UIElement target, System.Windows.Media.Color lightColor = default,
+                System.Windows.Media.Color darkColor = default, byte embossDepth = 5, byte opacity = 1, bool force = false)
+            {
+                try
+                {
+                    Console.Title = null;
+
+                    Application.Current.Dispatcher.Invoke(() => {
+                        DropShadowEffect embossEffect = new DropShadowEffect
+                        {
+                            Color = lightColor,
+                            ShadowDepth = embossDepth,
+                            BlurRadius = 0,
+                            Direction = 0,
+                            Opacity = opacity
+                        }; target.Effect = embossEffect;
+
+                        DropShadowEffect darkEffect = new DropShadowEffect
+                        {
+                            Color = darkColor,
+                            ShadowDepth = -embossDepth,
+                            BlurRadius = 0,
+                            Direction = 0,
+                            Opacity = opacity
+                        }; target.Effect = darkEffect;
+                    });
+                }
+                catch (Exception) { Error.Create(MainWindow.rwindow, "Error: EgeSupX no longer supports this Graphic.", "Graphics.Emboss()", !force); }
+            }
+
+            #endregion
+            #region Graphics.Glow() - Creates a Glow Effect.
+
+            /// <summary>
+            /// Creates a Glow Effect.
+            /// </summary>
+            /// <exception cref="NullReferenceException"></exception>
+            public static void Glow(UIElement target, System.Windows.Media.Color color = default, byte radius = 5, byte opacity = 1, bool force = false)
+            {
+                try {
+                    Application.Current.Dispatcher.Invoke(() => {
+                        DropShadowEffect glowEffect = new DropShadowEffect {
+                            Color = color == default ? Colors.Black : color,
+                            BlurRadius = radius,
+                            Opacity = opacity
+                        }; target.Effect = glowEffect;
+                    });
+                } catch (Exception ex) {
+                    if (ex is NullReferenceException) {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"target\" cannot be null." +
+                        $"\n\n{ex}", "Graphics.Glow()", !force);
+                    }
+                    else {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Graphics.Glow()\n\n{ex}", "Graphics.Glow()", !force);
+                    }
+                }
+            }
+            #endregion
+            #region Graphics.OuterGlow() - Creates an Outer Glow Effect.
+
+            /// <summary>
+            /// Creates an Outer Glow Effect.
+            /// </summary>
+            /// <exception cref="NullReferenceException"></exception>
+            public static void OuterGlow(UIElement target, System.Windows.Media.Color color = default, byte radius = 5, byte depth = 5, byte opacity = 1, bool force = false)
+            {
+                try {
+                    Application.Current.Dispatcher.Invoke(() => {
+                        DropShadowEffect outerGlowEffect = new DropShadowEffect {
+                            Color = color == default ? Colors.Black : color,
+                            BlurRadius = radius,
+                            ShadowDepth = depth,
+                            Opacity = opacity
+                        }; target.Effect = outerGlowEffect;
+                    });
+                } catch (Exception ex) {
+                    if (ex is NullReferenceException) {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"target\" cannot be null." +
+                        $"\n\n{ex}", "Graphics.OuterGlow()", !force);
+                    } else {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Graphics.OuterGlow()\n\n{ex}", "Graphics.OuterGlow()", !force);
+                    }
+                }
+            }
+
+            #endregion
+            #region Graphics.Reflection() - Creates a Reflection Effect.
+
+            /// <summary>
+            /// Creates a Reflection Effect.
+            /// </summary>
+            /// <exception cref="NullReferenceException"></exception>
+            public static void Reflection(UIElement target, bool force = false)
+            {
+                try {
+                    Application.Current.Dispatcher.Invoke(() => {
+                        VisualBrush reflectionBrush = new VisualBrush { Visual = target };
+
+                        System.Windows.Shapes.Rectangle reflectionRect = new System.Windows.Shapes.Rectangle {
+                            Width = target.RenderSize.Width,
+                            Height = target.RenderSize.Height,
+                            Fill = reflectionBrush
+                        };
+
+                        ScaleTransform flipTransform = new ScaleTransform { ScaleY = -1 };
+                        reflectionRect.RenderTransform = flipTransform;
+                        UI.Resize(reflectionRect, UI.GetWidth(reflectionRect), UI.GetHeight(reflectionRect) + target.RenderSize.Height);
+                        if (VisualTreeHelper.GetParent(target) is Panel parent) { parent.Children.Add(reflectionRect); }
+                    });
+                } catch (Exception ex) {
+                    if (ex is NullReferenceException) {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"target\" cannot be null." +
+                        $"\n\n{ex}", "Graphics.Reflection()", !force);
+                    }
+                    else
+                    {
+                        Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Graphics.Reflection()\n\n{ex}", "Graphics.Reflection()", !force);
+                    }
+                }
+            }
+
+            #endregion
         }
 
         public class Math
@@ -758,8 +954,7 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
             public static double runtime_d = -1;
             static readonly Thread _runtime = new Thread(t => {
                 long lastTick = Stopwatch.GetTimestamp(); long ticksPerMillisecond = Stopwatch.Frequency / 1000; while (true) {
-                    long currentTick = Stopwatch.GetTimestamp(); if (currentTick - lastTick >= ticksPerMillisecond) {
-                        runtime += 1;
+                    long currentTick = Stopwatch.GetTimestamp(); if (currentTick - lastTick >= ticksPerMillisecond) { runtime += 1;
                         lastTick = currentTick;
                     }
                 }
@@ -779,12 +974,13 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
             /// <exception cref="PlatformNotSupportedException">Thrown if the platform does not support the creation or management of threads.</exception>
             public static void Start()
             {
-                try { _runtime.Start(); _runtimes.Start(); _runtimem.Start(); _runtimeh.Start(); _runtimed.Start(); } catch (Exception ex)
-                {
+                try { _runtime.Start(); _runtimes.Start(); _runtimem.Start(); _runtimeh.Start(); _runtimed.Start(); } catch (Exception ex) {
                     if (ex is ThreadStateException)
                     {
-                        Error.Create(MainWindow.rwindow, $"Error: Thread State invalid." +
-                        $"\n\n{ex}", "Runtime.Start()", false);
+                        if (ex is ThreadStartException && ex is ThreadAbortException) {
+                            Error.Create(MainWindow.rwindow, $"Error: Thread State invalid." +
+                            $"\n\n{ex}", "Runtime.Start()", false);
+                        } else { return; }
                     }
                     else if (ex is OutOfMemoryException)
                     {
