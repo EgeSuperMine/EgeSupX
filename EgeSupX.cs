@@ -19,9 +19,10 @@ using System.Runtime.CompilerServices;
 using System.Management;
 using System.Windows.Media.Effects;
 using System.Drawing;
+using System.ComponentModel;
 
 // Made by EgeSuperMine. Copyright(c) 2024. All Rights reserved.
-// Version: 1.0.8
+// Version: 1.0.9
 
 // SETUP: \\
 // 1. Put the code below to your Main Window:
@@ -30,8 +31,8 @@ using System.Drawing;
 
 // 2. Put the code below to your Loaded Event:
 
-//EgeSupX EgeSupX = new EgeSupX();
 // rwindow = this;
+// _ = new EgeSupX();
 
 // /!\ You have to enable System.Windows.Forms and System.Drawing or EgeSupX won't work!
 // Your Main Window has to be called "MainWindow" or EgeSupX won't work!
@@ -67,6 +68,32 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
             } else {
                 try { } catch (Exception) { MessageBox.Show("How'd you do this?.. Nevermind...", "EgeSuperMine", MessageBoxButton.OK); }
             }
+        }
+
+        /// <summary>
+        /// Kills the current Process.
+        /// </summary>
+        public static void Shutdown() { Process.GetCurrentProcess().Kill(); }
+        
+        /// <summary>
+        /// EgeSupX Time Unit.
+        /// </summary>
+        public enum TimeUnit
+        {
+            [Description("The Default EgeSupX Time Unit.")]
+            Default,
+
+            [Description("EgeSupX Time Unit in Seconds.")]
+            Seconds,
+
+            [Description("EgeSupX Time Unit in Minutes.")]
+            Minutes,
+
+            [Description("EgeSupX Time Unit in Hours.")]
+            Hours,
+
+            [Description("EgeSupX Time Unit in Days.")]
+            Days
         }
 
         public class Error : System.Windows.Forms.Form
@@ -1008,16 +1035,16 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
             /// <returns>
             /// The runtime of the application. If a time unit is specified, returns the runtime in that unit; otherwise, returns the total runtime in seconds.
             /// </returns>
-            public static double GetRuntime(string _as = null, bool force = false)
+            public static double GetRuntime(TimeUnit _as = TimeUnit.Default, bool force = false)
             {
                 try
                 {
-                    if (_as == null) { return runtime; }
-                    else if (_as.ToLower() == "seconds" || _as.ToLower() == "s") { return runtime_s; }
-                    else if (_as.ToLower() == "minutes" || _as.ToLower() == "m") { return runtime_m; }
-                    else if (_as.ToLower() == "hours" || _as.ToLower() == "h") { return runtime_h; }
-                    else if (_as.ToLower() == "days" || _as.ToLower() == "d") { return runtime_d; }
-                    else { Error.Create(MainWindow.rwindow, "Error: Invalid [as] Type.\n\n", "Runtime.GetRuntime()", !force); }
+                    if (_as == TimeUnit.Default) { return runtime; }
+                    else if (_as == TimeUnit.Seconds) { return runtime_s; }
+                    else if (_as == TimeUnit.Minutes) { return runtime_m; }
+                    else if (_as == TimeUnit.Hours) { return runtime_h; }
+                    else if (_as == TimeUnit.Days) { return runtime_d; }
+                    else { Error.Create(MainWindow.rwindow, "Error: TimeUnit not recognized.\n\n", "Runtime.GetRuntime()", !force); }
                 } catch (Exception ex) { Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Runtime.GetRuntime()\n\n{ex}", "Runtime.GetRuntime()", !force); }
 
                 return runtime;
