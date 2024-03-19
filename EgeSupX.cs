@@ -22,7 +22,7 @@ using System.Drawing;
 using System.ComponentModel;
 
 // Made by EgeSuperMine. Copyright(c) 2024. All Rights reserved.
-// Version: 1.0.9
+// Version: 1.1
 
 // SETUP: \\
 // 1. Put the code below to your Main Window:
@@ -495,22 +495,61 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
             #region Math.RandomString() - Generates a random string within the specified length.
 
             /// <summary>
+            /// Random String Generation Type.
+            /// </summary>
+            public enum StringType
+            {
+                [Description("Uppercase and Lowercase Letters with Numbers.")]
+                BothNumbers,
+
+                [Description("Uppercase and Lowercase Letters.")]
+                BothOnly,
+
+                [Description("Uppercase Letters with Numbers.")]
+                UppercaseNumbers,
+
+                [Description("Uppercase Letters.")]
+                UppercaseOnly,
+
+                [Description("Lowercase Letters with Numbers.")]
+                LowercaseNumbers,
+
+                [Description("Lowercase Letters.")]
+                LowercaseOnly,
+
+                [Description("Just Numbers.")]
+                NumbersOnly
+            }
+
+            /// <summary>
             /// Generates a random string within the specified length.
             /// </summary>
             /// <returns>A random string within the specified length.</returns>
             /// <exception cref="OutOfMemoryException"></exception>
-            public static string RandomString(int length, bool force = false)
+            public static string RandomString(int length, StringType type = StringType.BothNumbers, bool force = false)
             {
                 try
                 {
                     if (length <= 0) { Error.Create(MainWindow.rwindow, $"Error: Parameter \"length\" must be bigger than 0. --> [length ({length}) < 1]", "Math.RandomString()", !force); return null; }
                     Random random = new Random();
-                    string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                    string BothNumbers = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                    string BothOnly = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+                    string UppercaseNumbers = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                    string UppercaseOnly = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                    string LowercaseNumbers = "abcdefghijklmnopqrstuvwxyz0123456789";
+                    string LowercaseOnly = "abcdefghijklmnopqrstuvwxyz";
+                    string NumbersOnly = "0123456789";
                     StringBuilder stringBuilder = new StringBuilder(length);
 
                     for (int i = 0; i < length; i++)
                     {
-                        stringBuilder.Append(chars[random.Next(chars.Length)]);
+                        if (type == StringType.BothNumbers) { stringBuilder.Append(BothNumbers[random.Next(BothNumbers.Length)]); }
+                        else if (type == StringType.BothOnly) { stringBuilder.Append(BothOnly[random.Next(BothOnly.Length)]); }
+                        else if (type == StringType.UppercaseNumbers) { stringBuilder.Append(UppercaseNumbers[random.Next(UppercaseNumbers.Length)]); }
+                        else if (type == StringType.UppercaseOnly) { stringBuilder.Append(UppercaseOnly[random.Next(UppercaseOnly.Length)]); }
+                        else if (type == StringType.LowercaseNumbers) { stringBuilder.Append(LowercaseNumbers[random.Next(LowercaseNumbers.Length)]); }
+                        else if (type == StringType.LowercaseOnly) { stringBuilder.Append(LowercaseOnly[random.Next(LowercaseOnly.Length)]); }
+                        else if (type == StringType.NumbersOnly) { stringBuilder.Append(NumbersOnly[random.Next(NumbersOnly.Length)]); }
                     }
 
                     return stringBuilder.ToString();
