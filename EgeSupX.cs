@@ -22,7 +22,7 @@ using System.Drawing;
 using System.ComponentModel;
 
 // Made by EgeSuperMine. Copyright(c) 2024. All Rights reserved.
-// Version: 1.1
+// Version: 1.1.1
 
 // SETUP: \\
 // 1. Put the code below to your Main Window:
@@ -410,6 +410,64 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
             #endregion
         }
 
+        public class IO
+        {
+            #region IO.Write() - Writes the specified array of text lines to a file at the specified path...
+
+            /// <summary>
+            /// Writes the specified array of text lines to a file at the specified path. If the file exists, its contents are overwritten.
+            /// </summary>
+            public static void Write(string path, string[] text, bool force = false)
+            {
+                try {
+                    if (File.Exists(path)) {
+                        File.WriteAllBytes(path, new byte[0]);
+                        StreamWriter writer = new StreamWriter(path, true); int line = 0;
+                        while (line < text.Length) { writer.WriteLine(text[line]); line++; }
+                        writer.Dispose();
+                        writer.Close();
+                    } else { Error.Create(MainWindow.rwindow, $"Error: File does not exist.\n\n", "IO.Write()", !force); }
+                } catch (Exception ex) {
+                    if (ex is IOException) {
+                        Error.Create(MainWindow.rwindow, $"Error: Cannot access the file.\n\n{ex}", "IO.Write()", !force);
+                    } else { Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.IO.Write()\n\n{ex}", "IO.Write()", !force); }
+                }
+            }
+
+            #endregion
+            #region IO.ReadLine() - Reads the specified line from a file at the specified path. Starts from Zero (0).
+
+            /// <summary>
+            /// Reads the specified line from a file at the specified path. Starts from Zero (0).
+            /// </summary>
+            /// <returns>The specified line from the file at the specified path.</returns>
+            public static object ReadLine(string path, int lines, bool force = false)
+            {
+                try {
+                    if (File.Exists(path)) {
+                        StreamReader reader = new StreamReader(path, true); int line = 0;
+                        while (line < lines) { Console.WriteLine(line); reader.ReadLine(); line++; }
+                        object d0ne = reader.ReadLine();
+                        reader.Dispose();
+                        reader.Close();
+
+                        return d0ne;
+                    } else { Error.Create(MainWindow.rwindow, "Error: File does not exist.", "IO.ReadLine()", !force); }
+                }
+                catch (Exception ex)
+                {
+                    if (ex is IOException) {
+                        Error.Create(MainWindow.rwindow, $"Error: Cannot access the file.\n\n{ex}", "IO.ReadLine()", !force);
+                    }
+                    else { Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.IO.ReadLine()\n\n{ex}", "IO.ReadLine()", !force); }
+                }
+
+                return 0;
+            }
+
+            #endregion
+        }
+
         public class Math
         {
             #region Math.Random() - Generates a random number within the specified range.
@@ -468,9 +526,24 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
                     if (digits == 7) { randomDecimal = rnd.Next(1000000, 10000000); random += randomDecimal / 10000000; }
                     if (digits == 8) { randomDecimal = rnd.Next(10000000, 100000000); random += randomDecimal / 100000000; }
                     if (digits == 9) { randomDecimal = rnd.Next(100000000, 1000000000); random += randomDecimal / 1000000000; }
-                    if (digits >= 10)
+                    if (digits == 10) { randomDecimal = (double)(rnd.Next(0, 10) * 1e9) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits == 11) { randomDecimal = (double)(rnd.Next(0, 10) * 1e10) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits == 12) { randomDecimal = (double)(rnd.Next(0, 10) * 1e11) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits == 13) { randomDecimal = (double)(rnd.Next(0, 10) * 1e12) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits == 14) { randomDecimal = (double)(rnd.Next(0, 10) * 1e13) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits == 15) { randomDecimal = (double)(rnd.Next(0, 10) * 1e14) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits == 16) { randomDecimal = (double)(rnd.Next(0, 10) * 1e15) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits == 17) { randomDecimal = (double)(rnd.Next(0, 10) * 1e16) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits == 18) { randomDecimal = (double)(rnd.Next(0, 10) * 1e17) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits == 19) { randomDecimal = (double)(rnd.Next(0, 10) * 1e18) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits == 20) { randomDecimal = (double)(rnd.Next(0, 10) * 1e19) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits == 21) { randomDecimal = (double)(rnd.Next(0, 10) * 1e20) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits == 22) { randomDecimal = (double)(rnd.Next(0, 10) * 1e21) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits == 23) { randomDecimal = (double)(rnd.Next(0, 10) * 1e22) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits == 24) { randomDecimal = (double)(rnd.Next(0, 10) * 1e23) + rnd.Next(0, 1000000000); random += randomDecimal / 1e10; }
+                    if (digits >= 24)
                     {
-                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"digits\" must be lower than 10. " +
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"digits\" must be lower than 24. " +
                         $"--> [digits ({digits}) > 9]\n\n", "Math.Random()", !force);
                         return 0;
                     }
@@ -518,7 +591,9 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
                 LowercaseOnly,
 
                 [Description("Just Numbers.")]
-                NumbersOnly
+                NumbersOnly,
+
+                Null = -1
             }
 
             /// <summary>
@@ -526,19 +601,21 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
             /// </summary>
             /// <returns>A random string within the specified length.</returns>
             /// <exception cref="OutOfMemoryException"></exception>
-            public static string RandomString(int length, StringType type = StringType.BothNumbers, bool force = false)
+            /// <exception cref="IndexOutOfRangeException"></exception>
+            /// <exception cref="NullReferenceException"></exception>
+            public static string RandomString(int length, StringType type = StringType.BothNumbers, string include = null, bool force = false)
             {
                 try
                 {
                     if (length <= 0) { Error.Create(MainWindow.rwindow, $"Error: Parameter \"length\" must be bigger than 0. --> [length ({length}) < 1]", "Math.RandomString()", !force); return null; }
                     Random random = new Random();
-                    string BothNumbers = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-                    string BothOnly = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-                    string UppercaseNumbers = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                    string UppercaseOnly = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-                    string LowercaseNumbers = "abcdefghijklmnopqrstuvwxyz0123456789";
-                    string LowercaseOnly = "abcdefghijklmnopqrstuvwxyz";
-                    string NumbersOnly = "0123456789";
+                    string BothNumbers = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" + include;
+                    string BothOnly = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" + include;
+                    string UppercaseNumbers = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789" + include;
+                    string UppercaseOnly = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + include;
+                    string LowercaseNumbers = "abcdefghijklmnopqrstuvwxyz0123456789" + include;
+                    string LowercaseOnly = "abcdefghijklmnopqrstuvwxyz" + include;
+                    string NumbersOnly = "0123456789" + include;
                     StringBuilder stringBuilder = new StringBuilder(length);
 
                     for (int i = 0; i < length; i++)
@@ -550,19 +627,25 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
                         else if (type == StringType.LowercaseNumbers) { stringBuilder.Append(LowercaseNumbers[random.Next(LowercaseNumbers.Length)]); }
                         else if (type == StringType.LowercaseOnly) { stringBuilder.Append(LowercaseOnly[random.Next(LowercaseOnly.Length)]); }
                         else if (type == StringType.NumbersOnly) { stringBuilder.Append(NumbersOnly[random.Next(NumbersOnly.Length)]); }
+                        else if (type == StringType.Null) { stringBuilder.Append(include[random.Next(include.Length)]); }
                     }
 
                     return stringBuilder.ToString();
                 }
                 catch (Exception ex)
                 {
-                    if (ex is OutOfMemoryException)
-                    {
+                    if (ex is OutOfMemoryException) {
                         Error.Create(MainWindow.rwindow, $"Error: Out of Memory. " +
                         $"\n\n{ex}", "Math.RandomString()", !force);
                     }
-                    else
-                    {
+                    else if (ex is IndexOutOfRangeException) {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"include\" cannot be Empty. " +
+                        $"\n\n{ex}", "Math.RandomString()", !force);
+                    }
+                    else if (ex is NullReferenceException) {
+                        Error.Create(MainWindow.rwindow, $"Error: Parameter \"include\" cannot be null. " +
+                        $"\n\n{ex}", "Math.RandomString()", !force);
+                    } else {
                         Error.Create(MainWindow.rwindow, $"Unknown Error at EgeSupX.Math.RandomString()\n\n{ex}", "Math.RandomString()", !force);
                     }
                 }
@@ -603,7 +686,7 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
                 {
                     player.Open(new Uri(uri));
                     if (time != TimeSpan.Zero) { player.Position = time; }
-                    if (volume != 100) { player.Volume = volume / 200; }
+                    player.Volume = volume / 100;
                     if (playspeed != 1) { player.SpeedRatio = playspeed; }
                     Application.Current.Dispatcher.Invoke(() => { player.Play(); });
                 }
@@ -751,7 +834,7 @@ namespace EgeSupX_Workspace // Your Namespace goes here...
 
             public static void Volume(MediaPlayer player, double volume, bool force = false)
             {
-                try { player.Volume = volume / 200; } catch (Exception ex)
+                try { player.Volume = volume / 100; } catch (Exception ex)
                 {
                     if (ex is NullReferenceException)
                     {
